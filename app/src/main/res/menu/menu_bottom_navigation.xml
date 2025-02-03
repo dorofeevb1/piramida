@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--    <item-->
+    <!--        android:id="@+id/diaryTab"-->
+    <!--        android:icon="@drawable/ic_diary_tab"-->
+    <!--        android:title="@string/diary"-->
+    <!--        app:showAsAction="ifRoom|withText" />-->
+    <item
+        android:id="@+id/pyramidTab"
+        android:icon="@drawable/ic_pyramid_tab"
+        android:title="@string/pyramid"
+        app:showAsAction="ifRoom|withText" />
+
+
+
+    <!-- Добавленный пункт меню для Теста -->
+    <item
+        android:id="@+id/testTab"
+        android:icon="@drawable/ic_test_tab"
+        android:title="@string/test"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/helpTab"
+        android:icon="@drawable/ic_help_tab"
+        android:title="@string/help"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/contentsTab"
+        android:icon="@drawable/ic_contents_tab"
+        android:title="@string/contents"
+        app:showAsAction="withText" />
+    <!-- Добавленный пункт меню для Настроек -->
+    <item
+        android:id="@+id/settingsTab"
+        android:icon="@drawable/ic_settings_tab"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom|withText" />
+</menu>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PyramidView">
+    </declare-styleable>
+
+    <declare-styleable name="SwipeView">
+        <attr name="deltaWidth" format="float" />
+        <attr name="layer" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="SwipeViewBackground">
+        <attr name="bgDeltaWidth" format="float" />
+        <attr name="bgNumberOfLayer" format="integer" />
+    </declare-styleable>
+</resources>

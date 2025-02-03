@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Entwicklungspyramide</string>
+    <string name="pyramid">Pyramide</string>
+    <string name="diary">Tagebuch</string>
+    <string name="help">Auskunft</string>
+    <string name="contents">Inhaltsverzeichnis</string>
+    <string name="delete">Löschen</string>
+    <string name="save">Speichern</string>
+    <string name="saving">Überlegungen speichern</string>
+    <string name="new_record">Neue Notiz</string>
+
+    <string-array name="help_titles">
+        <item>Wischen</item>
+        <item>Langes Drücken</item>
+        <item>Tippen auf Pyramiden-Spitze</item>
+    </string-array>
+    <string-array name="help_subtitles">
+        <item>Eben drehen</item>
+        <item>Aufbau der Pyramiden-Seite</item>
+        <item>Sperren der Pyramide, um durch alle Ebenen auf einmal zu blättern</item>
+    </string-array>
+
+    <string name="contents_item_1">Inhaltsverzeichnis</string>
+    <string name="help_about">Über den Autor</string>
+    <string name="close">Schliessen</string>
+    <string name="help_about_text">Pavel Piskarev. Ph. Dr. Psychologe. Coach. Entwicklungsarchitekt.
+        Vorsitzender des Vorstands der Internationalen Vereinigung für analytisches Coaching,
+        Rektor des Instituts für Kreativitätspsychologie. Korrespondierendes Mitglied von MAPN.\n\n
+        Autor der Konzepte "Drive", "Aufstieg des Helden", Autor der Methoden "NeuroGraphik" und
+        "Entwicklungspyramide", Autor einzigartiger Bildungsprogramme und Sozialprojekte.
+        Professionelle Umsetzungserfahrung seit 1987.\n\n
+        <b>Webseite:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n
+        <b>Theorie:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n
+        <b>Video:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n
+        <b>Schulung:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+    </string>
+    <string name="help_about_links">Links</string>
+    <string name="help_about_links_text">
+        <b>Webseite:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n<b>Theorie:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n<b>Video:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n<b>Schulung:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+    </string>
+    <string name="ready">Fertig</string>
+</resources>
