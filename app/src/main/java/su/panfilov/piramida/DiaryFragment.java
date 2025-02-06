@@ -3,8 +3,8 @@ package su.panfilov.piramida;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +12,6 @@ import android.widget.FrameLayout;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map;
 
 import su.panfilov.piramida.components.DiariesAdapter;
@@ -21,7 +19,6 @@ import su.panfilov.piramida.components.HelpAdapter;
 import su.panfilov.piramida.models.Diary;
 import su.panfilov.piramida.models.DiaryShort;
 import su.panfilov.piramida.models.HelpItem;
-
 
 public class DiaryFragment extends Fragment {
 
@@ -50,10 +47,9 @@ public class DiaryFragment extends Fragment {
     }
 
     private void initListView(View rootView) {
+        Map<String, String> diaryTitlesMap = Diary.readDiariesTitlesFromCache(requireContext().getApplicationContext());
 
-        Map<String, String> diaryTitlesMap = Diary.readDiariesTitlesFromCache(rootView.getContext().getApplicationContext());
-
-        ArrayList<DiaryShort> diaryItems = new ArrayList<DiaryShort>(0);
+        ArrayList<DiaryShort> diaryItems = new ArrayList<>(0);
         for (Map.Entry<String, String> entry : diaryTitlesMap.entrySet()) {
             DiaryShort diaryShort = new DiaryShort();
             diaryShort.id = entry.getKey();
@@ -65,7 +61,6 @@ public class DiaryFragment extends Fragment {
 
         ListView diaryListView = rootView.findViewById(R.id.diaryListView);
         diaryListView.setAdapter(diariesAdapter);
-
     }
 
     public void playTapped(View view) {
@@ -88,7 +83,7 @@ public class DiaryFragment extends Fragment {
                 playFragment = null;
             }
         } catch (NullPointerException e) {
-            //
+            // Handle exception
         }
 
         if (playFragment == null) {
@@ -97,5 +92,4 @@ public class DiaryFragment extends Fragment {
 
         playFragment.backTapped(view);
     }
-
 }

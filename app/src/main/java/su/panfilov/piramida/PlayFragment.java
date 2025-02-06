@@ -3,7 +3,7 @@ package su.panfilov.piramida;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,21 +23,16 @@ import su.panfilov.piramida.models.Diary;
 import su.panfilov.piramida.models.HistoryCommands;
 import su.panfilov.piramida.models.SaveTranslation;
 
-
 public class PlayFragment extends Fragment {
 
     private static final String TAG = "PlayFragment";
-
     View rootView;
-
     private boolean playingOn = false; // Флаг записи
-
     public PyramidView piramidaView;
     public ImageButton playButton;
     public ImageButton backButton;
 
     public SaveTranslation.PiramidaCommands command = SaveTranslation.PiramidaCommands.none;
-
     public Diary diary;
     int currentCommand = 0;
 
@@ -61,7 +56,7 @@ public class PlayFragment extends Fragment {
         setPlayingOn(false);
 
         piramidaView.userInteractive = false;
-        //addObservers();
+        // addObservers();
 
         initStartState();
         return rootView;
@@ -93,9 +88,9 @@ public class PlayFragment extends Fragment {
     public void setPlayingOn(boolean playingOn) {
         this.playingOn = playingOn;
         if (playingOn) {
-            playButton.setImageDrawable(getResources().getDrawable(R.drawable.pause));
+            playButton.setImageDrawable(requireContext().getDrawable(R.drawable.pause));
         } else {
-            playButton.setImageDrawable(getResources().getDrawable(R.drawable.play));
+            playButton.setImageDrawable(requireContext().getDrawable(R.drawable.play));
         }
     }
 
@@ -121,7 +116,6 @@ public class PlayFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         setPlayingOn(false);
     }
 
@@ -135,7 +129,6 @@ public class PlayFragment extends Fragment {
         }
 
         int countOfCommands = diary.historyCommands.size();
-
         if (countOfCommands <= indexOfCommand) {
             setPlayingOn(false);
             return;
@@ -241,18 +234,16 @@ public class PlayFragment extends Fragment {
             @Override
             public void run() {
                 try {
-                    getActivity().runOnUiThread(new Runnable() {
+                    requireActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             nextCommand(currentCommand, true);
                         }
                     });
                 } catch (NullPointerException e) {
-                    //
+                    // Handle exception
                 }
             }
         }, Math.round(nextCommandObject.deltaTime * 1000));
-
     }
-
 }

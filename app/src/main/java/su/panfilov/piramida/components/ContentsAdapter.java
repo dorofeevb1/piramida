@@ -26,6 +26,12 @@ public class ContentsAdapter extends BaseAdapter {
         this.sections.put(section, adapter);
     }
 
+    public void clearSections() {
+        this.sections.clear();
+        this.headers.clear();
+        notifyDataSetChanged();
+    }
+
     public Object getItem(int position) {
         for (Object section : this.sections.keySet()) {
             Adapter adapter = sections.get(section);

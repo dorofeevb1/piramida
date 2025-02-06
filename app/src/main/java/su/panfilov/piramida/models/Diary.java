@@ -1,7 +1,7 @@
 package su.panfilov.piramida.models;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.format.DateFormat;
 import android.util.JsonReader;
 
@@ -28,53 +28,21 @@ public class Diary {
     public ArrayList<HistoryCommands> historyCommands = new ArrayList<>(0);
 
     public void saveState(Context context) {
-//        Map<String, Diary> diariesMap = readDiariesFromCache(context);
-//        diariesMap.put(getId(), this);
-//        saveDiariesToCache(context, diariesMap);
-
         Map<String, String> diariesTitles = readDiariesTitlesFromCache(context);
         diariesTitles.put(getId(), title);
         saveDiariesTitlesToCache(context, diariesTitles);
-        saveDiaryToCache(context,this);
+        saveDiaryToCache(context, this);
     }
 
     public void delete(Context context) {
-//        Map<String, Diary> diariesMap = readDiariesFromCache(context);
-//        diariesMap.remove(getId());
-//        saveDiariesToCache(context, diariesMap);
-
-        //new FileCache(context).clear();
-
         Map<String, String> diariesTitles = readDiariesTitlesFromCache(context);
         diariesTitles.remove(getId());
         saveDiariesTitlesToCache(context, diariesTitles);
         deleteDiaryFromCache(context, getId());
     }
 
-//    public static Map<String, Diary> readDiariesFromCache(Context context) {
-//        Map<String, Diary> diariesMap = new HashMap<String, Diary>();
-//
-//        FileCache fileCache = new FileCache(context);
-//        String diariesListJson = fileCache.getStringFromFile("diaries");
-//        if (diariesListJson.equals("")) {
-//            diariesListJson = "{}";
-//        }
-//        Gson gson = new Gson();
-//        diariesMap = gson.fromJson(diariesListJson, new TypeToken<HashMap<String, Diary>>() {}.getType());
-//
-//        return diariesMap;
-//    }
-//
-//    private void saveDiariesToCache(Context context, Map<String, Diary> diariesMap) {
-//        FileCache fileCache = new FileCache(context);
-//        Gson gson = new Gson();
-//        String diariesListJson = gson.toJson(diariesMap, new TypeToken<HashMap<String, Diary>>() {}.getType());
-//        fileCache.putStringToFile("diaries", diariesListJson);
-//    }
-
-
     public static Map<String, String> readDiariesTitlesFromCache(Context context) {
-        Map<String, String> diariesTitles = new TreeMap<String, String>();
+        Map<String, String> diariesTitles = new TreeMap<>();
 
         FileCache fileCache = new FileCache(context);
         String diariesTitlesJson = fileCache.getStringFromFile("diaries_titles");
@@ -96,7 +64,7 @@ public class Diary {
 
     public static Diary readDiaryFromCache(Context context, String id) {
         FileCache fileCache = new FileCache(context);
-        String diaryDataJson = fileCache.getStringFromFile("diariy_data_" + id);
+        String diaryDataJson = fileCache.getStringFromFile("diary_data_" + id);
         if (diaryDataJson.equals("")) {
             diaryDataJson = "{}";
         }
@@ -110,12 +78,12 @@ public class Diary {
         FileCache fileCache = new FileCache(context);
         Gson gson = new Gson();
         String diaryDataJson = gson.toJson(diary, Diary.class);
-        fileCache.putStringToFile("diariy_data_" + diary.getId(), diaryDataJson);
+        fileCache.putStringToFile("diary_data_" + diary.getId(), diaryDataJson);
     }
 
     private void deleteDiaryFromCache(Context context, String id) {
         FileCache fileCache = new FileCache(context);
-        fileCache.deleteFile("diariy_data_" + id);
+        fileCache.deleteFile("diary_data_" + id);
     }
 
     public String getId() {

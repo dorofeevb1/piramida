@@ -5,11 +5,7 @@
     android:orientation="horizontal"
     android:padding="10dp">
 
-    <CheckBox
-        android:id="@+id/contentsItemCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical" />
+
 
     <TextView
         android:id="@+id/contentsItemTitle"
@@ -18,5 +14,11 @@
         android:layout_weight="1"
         android:textSize="20sp"
         android:paddingStart="10dp" />
-
+    <ImageView
+        android:id="@+id/contentsItemCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_checkbox_unchecked"
+        android:contentDescription="Checkbox" />
 </LinearLayout>

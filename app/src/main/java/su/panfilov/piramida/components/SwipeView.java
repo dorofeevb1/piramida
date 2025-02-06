@@ -9,9 +9,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
-import android.support.annotation.Dimension;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
+import androidx.annotation.Dimension;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.DragEvent;
@@ -74,7 +74,7 @@ public class SwipeView extends RelativeLayout {
             a.recycle();
         }
 
-         mp = MediaPlayer.create(context, R.raw.swipe_short);
+        mp = MediaPlayer.create(context, R.raw.swipe_short);
 
         setup();
     }
@@ -92,7 +92,6 @@ public class SwipeView extends RelativeLayout {
         mp = MediaPlayer.create(context, R.raw.swipe_short);
 
         setup();
-
     }
 
     @Override
@@ -102,17 +101,17 @@ public class SwipeView extends RelativeLayout {
             polygon.layout(Math.round(width / 2.0f - height / 4.0f), Math.round(height / 4.0f),
                     Math.round(width / 2.0f + height / 4.0f), Math.round(height / 4.0f * 3));
         }
-        label.measure(0,0);
-        int labelWidth = label.getMeasuredWidthAndState();
-        int labelHeight = label.getMeasuredHeightAndState();
+        label.measure(0, 0);
+        int labelWidth = label.getMeasuredWidth();
+        int labelHeight = label.getMeasuredHeight();
         if (labelWidth > width - deltaWidth / 1.5) {
             String text = label.getText().toString();
             text = text.substring(0, text.length() / 2) + "\n" + text.substring(text.length() / 2);
             label.setText(text);
             label.setTextSize(Dimension.SP, height / 8);
-            label.measure(0,0);
-            labelWidth = label.getMeasuredWidthAndState();
-            labelHeight = label.getMeasuredHeightAndState();
+            label.measure(0, 0);
+            labelWidth = label.getMeasuredWidth();
+            labelHeight = label.getMeasuredHeight();
         }
         label.layout((width - labelWidth) / 2, (height - labelHeight) / 2, (width + labelWidth) / 2, (height + labelHeight) / 2);
     }
@@ -172,7 +171,6 @@ public class SwipeView extends RelativeLayout {
             }
 
         });
-
     }
 
     public void setText(String text) {
@@ -303,48 +301,5 @@ public class SwipeView extends RelativeLayout {
         } else {
             label.startAnimation(animationHide);
         }
-
-//        homeAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//            @Override
-//            public void onAnimationUpdate(ValueAnimator animation) {
-//                float value = (float) animation.getAnimatedValue();
-//                label.setWidth(Math.round(startWidth * value));
-//
-//                if (value == 1.0f) {
-//                    ValueAnimator hideAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-//                    hideAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-//                        @Override
-//                        public void onAnimationUpdate(ValueAnimator animation) {
-//                            float value = (float) animation.getAnimatedValue();
-//                            label.setWidth(Math.round(startWidth * value));
-//                        }
-//                    });
-//                    hideAnimator.setInterpolator(new EaseInOutInterpolator());
-//                    hideAnimator.setDuration(500);
-//                    hideAnimator.start();
-//                }
-//            }
-//        });
-//        homeAnimator.setInterpolator(new EaseInOutInterpolator());
-//        homeAnimator.setDuration(1500);
-//        homeAnimator.start();
     }
-
-//    private TextView duplicateLabel(TextView label) {
-//        TextView auxLabel = new TextView()
-//        auxLabel.font = label.font
-//        auxLabel.minimumScaleFactor = label.minimumScaleFactor
-//        auxLabel.allowsDefaultTighteningForTruncation = label.allowsDefaultTighteningForTruncation
-//        auxLabel.textAlignment = label.textAlignment
-//        auxLabel.numberOfLines = label.numberOfLines
-//        auxLabel.textColor = label.textColor
-//        auxLabel.shadowColor = label.shadowColor
-//        auxLabel.shadowOffset = label.shadowOffset
-//        auxLabel.backgroundColor = UIColor.clear
-//        auxLabel.imageView.image = label.imageView.image
-//        auxLabel.adjustsFontSizeToFitWidth = true
-//
-//        return auxLabel
-//    }
-
 }

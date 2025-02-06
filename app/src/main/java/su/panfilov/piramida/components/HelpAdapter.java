@@ -2,7 +2,7 @@ package su.panfilov.piramida.components;
 
 import android.content.Context;
 import android.graphics.Point;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -19,37 +19,36 @@ import su.panfilov.piramida.HelpFragment;
 import su.panfilov.piramida.R;
 import su.panfilov.piramida.models.HelpItem;
 
-
 public class HelpAdapter extends BaseAdapter {
 
     private Fragment fragment;
     public ArrayList<HelpItem> data;
 
-
     public HelpAdapter(HelpFragment f, ArrayList<HelpItem> d) {
-
         fragment = f;
         data = d;
-
     }
 
+    @Override
     public int getCount() {
         return data.size();
     }
 
+    @Override
     public Object getItem(int position) {
         return position;
     }
 
+    @Override
     public long getItemId(int position) {
         return position;
     }
 
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         HelpItemHolder holder = null;
 
-        if(convertView == null)
-        {
+        if (convertView == null) {
             LayoutInflater inflater = fragment.getLayoutInflater();
             convertView = inflater.inflate(R.layout.help_list_item, parent, false);
 
@@ -58,10 +57,8 @@ public class HelpAdapter extends BaseAdapter {
             holder.subtitle = convertView.findViewById(R.id.helpItemSubtitle);
 
             convertView.setTag(holder);
-        }
-        else
-        {
-            holder = (HelpItemHolder)convertView.getTag();
+        } else {
+            holder = (HelpItemHolder) convertView.getTag();
         }
 
         HelpItem helpItem = data.get(position);
@@ -72,8 +69,7 @@ public class HelpAdapter extends BaseAdapter {
         return convertView;
     }
 
-    static class HelpItemHolder
-    {
+    static class HelpItemHolder {
         public TextView title;
         public TextView subtitle;
     }

@@ -7,7 +7,8 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,7 +23,6 @@ import java.util.Date;
 import su.panfilov.piramida.components.PyramidView;
 import su.panfilov.piramida.models.Diary;
 import su.panfilov.piramida.models.SaveTranslation;
-
 
 public class PyramidFragment extends Fragment {
 
@@ -50,7 +50,7 @@ public class PyramidFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_pyramid, container, false);
 
@@ -68,12 +68,12 @@ public class PyramidFragment extends Fragment {
         piramidaView.savingOn = savingOn;
         if (savingOn) {
             // Нажата кнопка записи
-            recordButton.setImageDrawable(getResources().getDrawable(R.drawable.stop));
+            recordButton.setImageDrawable(requireContext().getDrawable(R.drawable.stop));
             doneButton.setVisibility(View.INVISIBLE);
         } else {
             // Нажата кнопка стоп
-            recordButton.setImageDrawable(getResources().getDrawable(R.drawable.done));
-            doneButton.setVisibility(View.VISIBLE);
+            recordButton.setImageDrawable(requireContext().getDrawable(R.drawable.done));
+            doneButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -103,7 +103,7 @@ public class PyramidFragment extends Fragment {
                 diary.timeStamp = new Date();
                 diary.numberOfPiramida = SaveTranslation.numberOfPiramidas;
 
-                diary.saveState(rootView.getContext().getApplicationContext());
+                diary.saveState(requireContext().getApplicationContext());
 
                 newRecord = false;
             }
@@ -115,10 +115,10 @@ public class PyramidFragment extends Fragment {
     }
 
     public void doneTapped(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(rootView.getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         builder.setTitle(getString(R.string.saving));
 
-        final EditText input = new EditText(rootView.getContext());
+        final EditText input = new EditText(requireContext());
         input.setText(getString(R.string.new_record));
         input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
@@ -128,7 +128,7 @@ public class PyramidFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 newRecord = true;
                 diary.title = input.getText().toString();
-                diary.saveState(rootView.getContext().getApplicationContext());
+                diary.saveState(requireContext().getApplicationContext());
                 diary = null;
             }
         });
@@ -136,7 +136,7 @@ public class PyramidFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 newRecord = true;
-                diary.delete(rootView.getContext().getApplicationContext());
+                diary.delete(requireContext().getApplicationContext());
                 setDiary(null);
                 dialog.cancel();
             }
@@ -151,7 +151,7 @@ public class PyramidFragment extends Fragment {
         super.onDestroy();
 
         if (diary != null) {
-            diary.delete(rootView.getContext().getApplicationContext());
+            diary.delete(requireContext().getApplicationContext());
         }
     }
 }

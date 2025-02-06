@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import su.panfilov.piramida.components.HelpAdapter;
 import su.panfilov.piramida.models.HelpItem;
-
 
 public class HelpFragment extends Fragment {
 
@@ -41,11 +40,10 @@ public class HelpFragment extends Fragment {
     }
 
     private void initListView(View rootView) {
-
         String[] titles = getResources().getStringArray(R.array.help_titles);
         String[] subtitles = getResources().getStringArray(R.array.help_subtitles);
 
-        ArrayList<HelpItem> helpItems = new ArrayList<HelpItem>(0);
+        ArrayList<HelpItem> helpItems = new ArrayList<>(0);
 
         for (int i = 0; i < titles.length; i++) {
             if (!(titles.length > i || subtitles.length > i)) {
@@ -68,7 +66,5 @@ public class HelpFragment extends Fragment {
 
         ListView helpListView = rootView.findViewById(R.id.helpListView);
         helpListView.setAdapter(helpAdapter);
-
     }
-
 }

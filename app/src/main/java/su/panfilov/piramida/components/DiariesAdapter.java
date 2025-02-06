@@ -2,8 +2,8 @@ package su.panfilov.piramida.components;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,7 +26,6 @@ import su.panfilov.piramida.models.Diary;
 import su.panfilov.piramida.models.DiaryShort;
 import su.panfilov.piramida.models.HelpItem;
 
-
 public class DiariesAdapter extends BaseAdapter {
 
     private static final String TAG = "DiariesAdapter";
@@ -34,31 +33,31 @@ public class DiariesAdapter extends BaseAdapter {
     private DiaryFragment fragment;
     public ArrayList<DiaryShort> data;
 
-
     public DiariesAdapter(DiaryFragment f, ArrayList<DiaryShort> d) {
-
         fragment = f;
         data = d;
-
     }
 
+    @Override
     public int getCount() {
         return data.size();
     }
 
+    @Override
     public Object getItem(int position) {
         return position;
     }
 
+    @Override
     public long getItemId(int position) {
         return position;
     }
 
+    @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         DiaryItemHolder holder = null;
 
-        if(convertView == null)
-        {
+        if (convertView == null) {
             LayoutInflater inflater = fragment.getLayoutInflater();
             convertView = inflater.inflate(R.layout.diary_list_item, parent, false);
 
@@ -68,14 +67,12 @@ public class DiariesAdapter extends BaseAdapter {
             holder.deleteButton = convertView.findViewById(R.id.removeDiaryButton);
 
             convertView.setTag(holder);
-        }
-        else
-        {
-            holder = (DiaryItemHolder)convertView.getTag();
+        } else {
+            holder = (DiaryItemHolder) convertView.getTag();
         }
 
         String diaryId = data.get(position).id;
-        final Diary diary = Diary.readDiaryFromCache(fragment.getContext().getApplicationContext(), diaryId);
+        final Diary diary = Diary.readDiaryFromCache(fragment.requireContext().getApplicationContext(), diaryId);
 
         Log.d(TAG, "getView: " + holder.title);
 
@@ -99,7 +96,7 @@ public class DiariesAdapter extends BaseAdapter {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         diary.title = input.getText().toString();
-                        diary.saveState(fragment.getContext().getApplicationContext());
+                        diary.saveState(fragment.requireContext().getApplicationContext());
                         data.get(position).title = diary.title;
                         notifyDataSetChanged();
                     }
@@ -133,7 +130,7 @@ public class DiariesAdapter extends BaseAdapter {
                         ft.commit();
                     }
                 } catch (NullPointerException e) {
-                    //
+                    // Handle exception
                 }
             }
         });
@@ -150,7 +147,7 @@ public class DiariesAdapter extends BaseAdapter {
                 builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        diary.delete(fragment.getContext().getApplicationContext());
+                        diary.delete(fragment.requireContext().getApplicationContext());
                         data.remove(position);
                         notifyDataSetChanged();
                     }
@@ -169,8 +166,7 @@ public class DiariesAdapter extends BaseAdapter {
         return convertView;
     }
 
-    static class DiaryItemHolder
-    {
+    static class DiaryItemHolder {
         public TextView title;
         public ImageButton viewButton;
         public ImageButton deleteButton;
