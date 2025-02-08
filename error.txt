@@ -135,22 +135,27 @@ public class MainActivity extends AppCompatActivity {
 
         frag = null;
         // init corresponding fragment
-
-        int itemId = item.getItemId();
-        if (itemId == R.id.pyramidTab) {
-            frag = PyramidFragment.newInstance();
-        } else if (itemId == R.id.testTab) {
-            frag = HelpFragment.newInstance();
-        } else if (itemId == R.id.helpTab) {
-            frag = HelpFragment.newInstance();
-        } else if (itemId == R.id.contentsTab) {
-            frag = ContentsFragment.newInstance();
-        } else if (itemId == R.id.settingsTab) {
-            frag = SettingsFragment.newInstance();
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.pyramidTab:
+                frag = PyramidFragment.newInstance();
+                break;
+            case R.id.testTab:
+                frag = HelpFragment.newInstance();
+                break;
+            case R.id.helpTab:
+                frag = HelpFragment.newInstance();
+                break;
+            case R.id.contentsTab:
+                frag = ContentsFragment.newInstance();
+                break;
+            case R.id.settingsTab:
+                frag = SettingsFragment.newInstance();
+                break;
         }
 
         // update selected item
-        mSelectedItem = itemId;
+        mSelectedItem = item.getItemId();
 
         if (frag != null) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -158,7 +163,38 @@ public class MainActivity extends AppCompatActivity {
             ft.commit();
         }
     }
-
-
-
 }
+> Task :app:compileDebugJavaWithJavac
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+Java compiler has deprecated support for compiling with source/target compatibility version 8.
+
+Set Java Toolchain to 17
+Change Java language level and jvmTarget to 11 in all modules if using a lower level.
+Pick a different compatibility level...
+Pick a different JDK to run Gradle...
+More information...
+
+C:\Users\hanzo\Desktop\word\piramida\app\src\main\java\su\panfilov\piramida\MainActivity.java:139: error: constant expression required
+            case R.id.pyramidTab:
+                     ^
+C:\Users\hanzo\Desktop\word\piramida\app\src\main\java\su\panfilov\piramida\MainActivity.java:142: error: constant expression required
+            case R.id.testTab:
+                     ^
+C:\Users\hanzo\Desktop\word\piramida\app\src\main\java\su\panfilov\piramida\MainActivity.java:145: error: constant expression required
+            case R.id.helpTab:
+                     ^
+C:\Users\hanzo\Desktop\word\piramida\app\src\main\java\su\panfilov\piramida\MainActivity.java:148: error: constant expression required
+            case R.id.contentsTab:
+                     ^
+C:\Users\hanzo\Desktop\word\piramida\app\src\main\java\su\panfilov\piramida\MainActivity.java:151: error: constant expression required
+            case R.id.settingsTab:
+                     ^
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+5 errors
+3 warnings
+
+> Task :app:compileDebugJavaWithJavac FAILED
+

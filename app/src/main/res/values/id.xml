@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="pyramidTab" type="id"/>
+    <item name="testTab" type="id"/>
+    <item name="helpTab" type="id"/>
+    <item name="contentsTab" type="id"/>
+    <item name="settingsTab" type="id"/>
+</resources>
+   
