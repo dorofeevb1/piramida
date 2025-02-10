@@ -1,0 +1,4671 @@
+// File: piramida/.gitignore
+*.iml
+.gradle
+/local.properties
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+
+
+// File: piramida/app/.gitignore
+/build
+
+
+// File: piramida/app/src/androidTest/java/su/panfilov/piramida/ExampleInstrumentedTest.java
+package su.panfilov.piramida;
+
+import android.content.Context;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
+
+/**
+ * Instrumented test, which will execute on an Android device.
+ *
+ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ */
+@RunWith(AndroidJUnit4.class)
+public class ExampleInstrumentedTest {
+    @Test
+    public void useAppContext() {
+        // Context of the app under test.
+        Context appContext = InstrumentationRegistry.getTargetContext();
+
+        assertEquals("su.panfilov.piramida", appContext.getPackageName());
+    }
+}
+
+
+// File: piramida/app/src/main/AndroidManifest.xml
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="su.panfilov.piramida">
+
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme.Launcher"
+            android:screenOrientation="portrait"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Добавляем TestResultsActivity -->
+        <activity android:name=".TestResultsActivity" />
+        <activity android:name=".TestProcessActivity" />
+        <activity android:name=".components.AboutTestActivity" />
+    </application>
+</manifest>
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/AboutTestActivity.java
+package su.panfilov.piramida.components;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
+import su.panfilov.piramida.R;
+import su.panfilov.piramida.TestActivity;
+
+public class AboutTestActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_about_test);
+
+
+        // Найти TextView
+        TextView aboutTestText = findViewById(R.id.aboutTestText);
+
+        // Установить текст
+        aboutTestText.setText("Пройдите тест, чтобы определить на каком уровне вы находитесь, " +
+                "относительно актуального для вас запроса. В качестве запроса можно взять: " +
+                "цель в будущем, ситуацию в прошлом, текущее состояние в проекте, " +
+                "состояние жизни в целом, настрой на день и т.д. Выбор запроса ничем не ограничен. " +
+                "Всё в ваших руках.\n\n" +
+                "Пройдя тест, вы сможете обрести дополнительные точки опоры, " +
+                "структурировать представления о запросе, принять новые решения " +
+                "для достижения желаемых изменений в настоящем и будущем.\n\n" +
+                "Тест включает в себя 4 режима тестирования:\n" +
+                "• День (4 грани, 2-4 минуты)\n" +
+                "• Месяц (12 граней, 6-12 минут)\n" +
+                "• Год (20 граней, 10-20 минут)\n" +
+                "• Десятилетие (54 грани, 26-54 минуты)\n\n" +
+                "Количество граней равно количеству вопросов, в каждом из которых вам " +
+                "нужно будет выбрать 1 слово, лучше других отражающее состояние дел на данный момент. " +
+                "Слова внутри каждой грани будут специально перемешаны, чтобы вам было легче " +
+                "сфокусироваться именно на самих словах, а не стараться выбрать ваш «любимый» номер уровня грани.");
+
+        // Найти кнопки
+        Button btnBack = findViewById(R.id.btnBack);
+        Button btnMainScreen = findViewById(R.id.btnMainScreen);
+
+        // Кнопка "Назад" - просто закрывает текущую активность
+        btnBack.setOnClickListener(v -> finish());
+
+        // Кнопка "На основной экран" - открывает `TestActivity` и очищает стек активности
+        btnMainScreen.setOnClickListener(v -> {
+            Intent intent = new Intent(AboutTestActivity.this, TestActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
+    }
+}
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/BottomNavigationViewHelper.java
+package su.panfilov.piramida.components;
+
+import android.annotation.SuppressLint;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.lang.reflect.Field;
+
+public class BottomNavigationViewHelper {
+
+    @SuppressLint("RestrictedApi")
+    public static void removeShiftMode(BottomNavigationView view) {
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) view.getChildAt(0);
+        try {
+            Field shiftingMode = menuView.getClass().getDeclaredField("mShiftingMode");
+            shiftingMode.setAccessible(true);
+            shiftingMode.setBoolean(menuView, false);
+            shiftingMode.setAccessible(false);
+            for (int i = 0; i < menuView.getChildCount(); i++) {
+                BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
+                item.setShifting(false);
+                // set once again checked value, so view will be updated
+                item.setChecked(item.getItemData().isChecked());
+            }
+        } catch (NoSuchFieldException e) {
+            // Log.e("ERROR NO SUCH FIELD", "Unable to get shift mode field");
+        } catch (IllegalAccessException e) {
+            // Log.e("ERROR ILLEGAL ALG", "Unable to change value of shift mode");
+        }
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/ContentsAdapter.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import su.panfilov.piramida.R;
+
+public class ContentsAdapter extends BaseAdapter {
+    public final Map<String, Adapter> sections = new LinkedHashMap<String, Adapter>();
+    public final ArrayAdapter<String> headers;
+    public final static int TYPE_SECTION_HEADER = 0;
+
+    public ContentsAdapter(Context context) {
+        headers = new ArrayAdapter<String>(context, R.layout.contents_list_header);
+    }
+
+    public void addSection(String section, Adapter adapter) {
+        this.headers.add(section);
+        this.sections.put(section, adapter);
+    }
+
+    public void clearSections() {
+        this.sections.clear();
+        this.headers.clear();
+        notifyDataSetChanged();
+    }
+
+    public Object getItem(int position) {
+        for (Object section : this.sections.keySet()) {
+            Adapter adapter = sections.get(section);
+            int size = adapter.getCount() + 1;
+
+            // check if position inside this section
+            if (position == 0) return section;
+            if (position < size) return adapter.getItem(position - 1);
+
+            // otherwise jump into next section
+            position -= size;
+        }
+        return null;
+    }
+
+    public int getCount() {
+        // total together all sections, plus one for each section header
+        int total = 0;
+        for (Adapter adapter : this.sections.values())
+            total += adapter.getCount() + 1;
+        return total;
+    }
+
+    @Override
+    public int getViewTypeCount() {
+        // assume that headers count as one, then total all sections
+        int total = 1;
+        for (Adapter adapter : this.sections.values())
+            total += adapter.getViewTypeCount();
+        return total;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        int type = 1;
+        for (Object section : this.sections.keySet()) {
+            Adapter adapter = sections.get(section);
+            int size = adapter.getCount() + 1;
+
+            // check if position inside this section
+            if (position == 0) return TYPE_SECTION_HEADER;
+            if (position < size) return type + adapter.getItemViewType(position - 1);
+
+            // otherwise jump into next section
+            position -= size;
+            type += adapter.getViewTypeCount();
+        }
+        return -1;
+    }
+
+    public boolean areAllItemsSelectable() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled(int position) {
+        return (getItemViewType(position) != TYPE_SECTION_HEADER);
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        int sectionnum = 0;
+        for (Object section : this.sections.keySet()) {
+            Adapter adapter = sections.get(section);
+            int size = adapter.getCount() + 1;
+
+            // check if position inside this section
+            if (position == 0) return headers.getView(sectionnum, convertView, parent);
+            if (position < size) return adapter.getView(position - 1, convertView, parent);
+
+            // otherwise jump into next section
+            position -= size;
+            sectionnum++;
+        }
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/ContentsItemAdapter.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import su.panfilov.piramida.R;
+
+public class ContentsItemAdapter extends ArrayAdapter<String> {
+
+    private List<Boolean> checkBoxStates;
+
+    public ContentsItemAdapter(Context context, List<String> items) {
+        super(context, 0, items);
+        checkBoxStates = new ArrayList<>(Collections.nCopies(items.size(), false));
+    }
+
+    public ContentsItemAdapter(Context context, List<String> items, List<Boolean> initialCheckBoxStates) {
+        super(context, 0, items);
+        checkBoxStates = new ArrayList<>(initialCheckBoxStates);
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.contents_list_item, parent, false);
+        }
+
+        String item = getItem(position);
+        boolean isChecked = checkBoxStates.get(position);
+
+        TextView textView = convertView.findViewById(R.id.contentsItemTitle);
+        ImageView checkBox = convertView.findViewById(R.id.contentsItemCheckBox);
+
+        if (textView != null) {
+            textView.setText(item);
+        }
+
+        if (checkBox != null) {
+            // Устанавливаем изображение в зависимости от состояния чекбокса
+            checkBox.setImageResource(isChecked ? R.drawable.ic_checkbox_checked : R.drawable.ic_checkbox_unchecked);
+
+            checkBox.setOnClickListener(v -> {
+                boolean newState = !checkBoxStates.get(position);
+                checkBoxStates.set(position, newState);
+
+                // Обновляем изображение чекбокса после изменения состояния
+                checkBox.setImageResource(newState ? R.drawable.ic_checkbox_checked : R.drawable.ic_checkbox_unchecked);
+
+                notifyDataSetChanged();
+            });
+        }
+
+        return convertView;
+    }
+
+    public List<Boolean> getCheckBoxStates() {
+        return checkBoxStates;
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/DiariesAdapter.java
+package su.panfilov.piramida.components;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import android.text.InputType;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+import su.panfilov.piramida.DiaryFragment;
+import su.panfilov.piramida.HelpFragment;
+import su.panfilov.piramida.MainActivity;
+import su.panfilov.piramida.PlayFragment;
+import su.panfilov.piramida.R;
+import su.panfilov.piramida.models.Diary;
+import su.panfilov.piramida.models.DiaryShort;
+import su.panfilov.piramida.models.HelpItem;
+
+public class DiariesAdapter extends BaseAdapter {
+
+    private static final String TAG = "DiariesAdapter";
+
+    private DiaryFragment fragment;
+    public ArrayList<DiaryShort> data;
+
+    public DiariesAdapter(DiaryFragment f, ArrayList<DiaryShort> d) {
+        fragment = f;
+        data = d;
+    }
+
+    @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, final ViewGroup parent) {
+        DiaryItemHolder holder = null;
+
+        if (convertView == null) {
+            LayoutInflater inflater = fragment.getLayoutInflater();
+            convertView = inflater.inflate(R.layout.diary_list_item, parent, false);
+
+            holder = new DiaryItemHolder();
+            holder.title = convertView.findViewById(R.id.diaryItemTitle);
+            holder.viewButton = convertView.findViewById(R.id.viewDiaryButton);
+            holder.deleteButton = convertView.findViewById(R.id.removeDiaryButton);
+
+            convertView.setTag(holder);
+        } else {
+            holder = (DiaryItemHolder) convertView.getTag();
+        }
+
+        String diaryId = data.get(position).id;
+        final Diary diary = Diary.readDiaryFromCache(fragment.requireContext().getApplicationContext(), diaryId);
+
+        Log.d(TAG, "getView: " + holder.title);
+
+        holder.title.setText(diary.title);
+        holder.title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fragment.playFragmentPresented) {
+                    return;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getContext());
+                builder.setTitle("Изменение записи");
+
+                final EditText input = new EditText(fragment.getContext());
+                input.setText(diary.title);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+
+                builder.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        diary.title = input.getText().toString();
+                        diary.saveState(fragment.requireContext().getApplicationContext());
+                        data.get(position).title = diary.title;
+                        notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+        holder.viewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fragment.playFragmentPresented) {
+                    return;
+                }
+
+                try {
+                    fragment.playFragment = PlayFragment.newInstance();
+                    if (fragment.playFragment != null) {
+                        fragment.playFragmentPresented = true;
+                        fragment.playFragment.diary = diary;
+                        FragmentTransaction ft = fragment.getActivity().getSupportFragmentManager().beginTransaction();
+                        FrameLayout playLayout = fragment.getActivity().findViewById(R.id.playLayout);
+                        playLayout.setVisibility(View.VISIBLE);
+                        ft.add(R.id.playLayout, fragment.playFragment, fragment.playFragment.getTag());
+                        ft.commit();
+                    }
+                } catch (NullPointerException e) {
+                    // Handle exception
+                }
+            }
+        });
+        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fragment.playFragmentPresented) {
+                    return;
+                }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getContext());
+                builder.setTitle("Удалить запись?");
+
+                builder.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        diary.delete(fragment.requireContext().getApplicationContext());
+                        data.remove(position);
+                        notifyDataSetChanged();
+                    }
+                });
+                builder.setNegativeButton("Отмена", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
+
+        return convertView;
+    }
+
+    static class DiaryItemHolder {
+        public TextView title;
+        public ImageButton viewButton;
+        public ImageButton deleteButton;
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/FileCache.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.util.Log;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+
+public class FileCache {
+
+    private File cacheDir;
+
+    public FileCache(Context context){
+        //Find the dir to save cached images
+//        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED))
+//            cacheDir=new File(android.os.Environment.getExternalStorageDirectory(),"PhotosList");
+//        else
+            cacheDir=context.getCacheDir();
+        if(!cacheDir.exists()) {
+            if (!cacheDir.mkdirs()) {
+                Log.e("FileCache", "Can not create cache dir");
+            }
+        }
+    }
+
+    public File getFile(String url){
+        //I identify images by hashcode. Not a perfect solution, good for the demo.
+        String filename=String.valueOf(Utils.md5(url));
+        //Another possible solution (thanks to grantland)
+        //String filename = URLEncoder.encode(url);
+        File f = new File(cacheDir, filename);
+        return f;
+
+    }
+
+    public void putStringToFile(String url, String data)
+    {
+        String filename = String.valueOf(Utils.md5(url));
+
+        //Log.e("FileCache", "Put to file " + filename + " string " + data);
+
+        //Another possible solution (thanks to grantland)
+        //String filename = URLEncoder.encode(url);
+        File f = new File(cacheDir, filename);
+
+        f.delete();
+
+        try
+        {
+            try {
+                if (!f.createNewFile()) {
+                    Log.e("FileCache", "Can not create file " + filename);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+
+            }
+            FileOutputStream fOut = new FileOutputStream(f);
+            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+            myOutWriter.append(data);
+
+            myOutWriter.close();
+
+            fOut.flush();
+            fOut.close();
+        }
+        catch (IOException e)
+        {
+            Log.e("FileCache Exception", "File write failed: " + e.toString());
+        }
+    }
+
+    public String getStringFromFile(String url) {
+        String result = "";
+
+        String filename = String.valueOf(Utils.md5(url));
+
+        File file = new File(cacheDir, filename);
+        if ( file.exists() ) {
+            //byte[] buffer = new byte[(int) new File(filePath).length()];
+            FileInputStream fis = null;
+            try {
+                //f = new BufferedInputStream(new FileInputStream(filePath));
+                //f.read(buffer);
+
+                fis = new FileInputStream(file);
+                BufferedReader bReader = new BufferedReader(new InputStreamReader(fis));
+                String aDataRow = "";
+                StringBuilder buffer = new StringBuilder();
+                while ((aDataRow = bReader.readLine()) != null) {
+                    buffer.append(aDataRow);
+                }
+                result = buffer.toString();
+                bReader.close();
+            } catch (Exception e) {
+                Log.d("FileCache Exception", e.toString());
+            } finally {
+                if (fis != null)
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        Log.e("FileCache Exception", "File write failed: " + e.toString());
+                    }
+            }
+            //result = new String(buffer);
+        } else {
+            Log.e("FileCache", "File not exists " + filename);
+        }
+
+        Log.e("FileCache", "File string: " + result);
+
+        return result;
+    }
+
+    public void clear(){
+        File[] files=cacheDir.listFiles();
+        if(files==null)
+            return;
+        for(File f:files)
+            f.delete();
+    }
+
+    public void deleteFile(String url){
+        String filename = String.valueOf(Utils.md5(url));
+
+        File file = new File(cacheDir, filename);
+        if ( file.exists() ) {
+            file.delete();
+        }
+    }
+
+}
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/HelpAdapter.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.graphics.Point;
+import androidx.fragment.app.Fragment;
+import android.util.Log;
+import android.view.Display;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.ArrayList;
+
+import su.panfilov.piramida.HelpFragment;
+import su.panfilov.piramida.R;
+import su.panfilov.piramida.models.HelpItem;
+
+public class HelpAdapter extends BaseAdapter {
+
+    private Fragment fragment;
+    public ArrayList<HelpItem> data;
+
+    public HelpAdapter(HelpFragment f, ArrayList<HelpItem> d) {
+        fragment = f;
+        data = d;
+    }
+
+    @Override
+    public int getCount() {
+        return data.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return position;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        HelpItemHolder holder = null;
+
+        if (convertView == null) {
+            LayoutInflater inflater = fragment.getLayoutInflater();
+            convertView = inflater.inflate(R.layout.help_list_item, parent, false);
+
+            holder = new HelpItemHolder();
+            holder.title = convertView.findViewById(R.id.helpItemTitle);
+            holder.subtitle = convertView.findViewById(R.id.helpItemSubtitle);
+
+            convertView.setTag(holder);
+        } else {
+            holder = (HelpItemHolder) convertView.getTag();
+        }
+
+        HelpItem helpItem = data.get(position);
+
+        holder.title.setText(helpItem.title);
+        holder.subtitle.setText(helpItem.subtitle);
+
+        return convertView;
+    }
+
+    static class HelpItemHolder {
+        public TextView title;
+        public TextView subtitle;
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/LockView.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.CornerPathEffect;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.util.AttributeSet;
+import android.view.View;
+
+import su.panfilov.piramida.R;
+
+public class LockView extends View {
+    private Path path;
+    private Paint paint = new Paint();
+
+    public int left;
+    public int top;
+    public int right;
+    public int bottom;
+
+    private int viewWidth = 0;
+    private int viewHeight = 0;
+
+    public LockView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setup();
+    }
+
+    public LockView(Context context, int width, int height) {
+        super(context);
+
+        viewWidth = width;
+        viewHeight = height;
+
+        setup();
+    }
+
+    private void setup() {
+//        setLayerType(View.LAYER_TYPE_SOFTWARE, paint);
+//        setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (path == null) {
+//            viewWidth = getMeasuredWidth();
+//            viewHeight = getMeasuredHeight();
+//
+//            Log.d("1111","onDraw with viewWidth= " + viewWidth + " and viewHeight= " + viewHeight + " called...");
+
+            float gipotenusa = (float)Math.sqrt(viewHeight * viewHeight + viewWidth * viewWidth / 4) / (viewWidth / 4);
+            float offset = (gipotenusa - 1);
+
+            float centerXOfPiramida = viewWidth / 2;
+            float centerYOfPiramida = viewHeight / 2 - offset;
+
+            float scaleLockLayer = 1;
+            float point1X = centerXOfPiramida;
+            float point1Y = centerYOfPiramida - viewHeight / 2 * scaleLockLayer + 6;
+            float point2X = centerXOfPiramida - viewWidth / 2 * scaleLockLayer + 3;
+            float point2Y = centerYOfPiramida + viewHeight / 2 * scaleLockLayer;
+            float point3X = centerXOfPiramida + viewWidth / 2 * scaleLockLayer - 3;
+            float point3Y = centerYOfPiramida + viewHeight / 2 * scaleLockLayer;
+
+            path = new Path();
+            path.reset();
+            path.moveTo(point1X, point1Y);
+            path.lineTo(point2X, point2Y);
+            path.lineTo(point3X, point3Y);
+            path.close();
+        }
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(6);
+        paint.setColor(getResources().getColor(R.color.colorTabActive));
+        canvas.drawPath(path, paint);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/OnSwipeTouchListener.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup;
+
+public class OnSwipeTouchListener implements OnTouchListener {
+    private static final String TAG = "OnSwipeTouchListener";
+
+    private final GestureDetector gestureDetector;
+
+    public OnSwipeTouchListener (Context ctx){
+        gestureDetector = new GestureDetector(ctx, new GestureListener());
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        view.performClick();
+        gestureDetector.onTouchEvent(motionEvent);
+        return false;
+    }
+
+    private final class GestureListener extends SimpleOnGestureListener {
+
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            boolean result = false;
+            try {
+                float diffY = e2.getY() - e1.getY();
+                float diffX = e2.getX() - e1.getX();
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            onSwipeRight();
+                        } else {
+                            onSwipeLeft();
+                        }
+                    }
+                    result = true;
+                }
+                else if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffY > 0) {
+                        onSwipeBottom();
+                    } else {
+                        onSwipeTop();
+                    }
+                }
+                result = true;
+
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+            return result;
+        }
+    }
+
+    public void onSwipeRight() {
+    }
+
+    public void onSwipeLeft() {
+    }
+
+    public void onSwipeTop() {
+    }
+
+    public void onSwipeBottom() {
+    }
+}
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/PyramidColors.java
+package su.panfilov.piramida.components;
+
+import android.graphics.Color;
+
+public class PyramidColors {
+
+    public static int[] colors() {
+        int[] colors = {
+            Color.rgb(255, 255, 255),
+            Color.rgb(229, 68, 86),
+            Color.rgb(247, 109, 80),
+            Color.rgb(253, 204, 111),
+            Color.rgb(154, 208, 94),
+            Color.rgb(74, 194, 231),
+            Color.rgb(95, 161, 237),
+            Color.rgb(153, 123, 219)
+        };
+
+        return colors;
+    }
+
+    public static int iconColor() {
+        return Color.rgb(153, 122, 164);
+    }
+
+    public static int textColor() {
+        return Color.rgb(108, 108, 108);
+    }
+
+    public static int textHeaderColor() {
+        return Color.rgb(90, 106, 122);
+    }
+
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/PyramidView.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.media.MediaPlayer;
+import android.os.Parcelable;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.RelativeLayout;
+
+import java.util.ArrayList;
+
+import su.panfilov.piramida.R;
+import su.panfilov.piramida.models.PyramidsDataSource;
+import su.panfilov.piramida.models.SaveTranslation;
+
+public class PyramidView extends RelativeLayout {
+
+    private static final String TAG = "PyramidView";
+    private Context context;
+
+    private float coeficentOfHead = 0.185f;
+    private float horizontalMarginInPercent = 8;
+
+    private float topMarginInPercent = 8;
+    private float bottomMarginInPercent = 8;
+
+    private float topOfPiramida;
+    private float bottomOfPiramida;
+    private float leftOfPiramida;
+    private float rightOfPiramida;
+
+    private float heightOfPiramida;
+    private float widthOfPiramida;
+
+    private float headOfPiramida;
+    private float widthOfHead;
+
+    private float heightOfLayer;
+    private float deltaWidthOfLayer;
+
+    private boolean layersCreated = false;
+
+    public PyramidsDataSource piramidaDataSource = new PyramidsDataSource();
+    public boolean piramidaIsLocked = false;
+
+    public SaveTranslation saveTranslation;
+    public boolean savingOn = false;
+
+    public ArrayList<SwipeView> layerViews = new ArrayList<>(0);
+    public TriangleView triangleView;
+    public LockView lockView;
+
+    public boolean lockViewInitialVisibility = false;
+    public String[] initialLabelsText = {};
+
+    public boolean userInteractive = true;
+
+    public PyramidView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        this.context = context;
+        saveTranslation = new SaveTranslation(context);
+        final MediaPlayer mp = MediaPlayer.create(this.context, R.raw.sound_shelk);
+        mp.start();
+    }
+
+    public PyramidView(Context context) {
+        super(context);
+
+        this.context = context;
+        saveTranslation = new SaveTranslation(context);
+
+        final MediaPlayer mp = MediaPlayer.create(this.context, R.raw.sound_shelk);
+        mp.start();
+    }
+
+    @Override
+    protected void onLayout(boolean b, int i, int i1, int i2, int i3) {
+        super.onLayout(b, i, i1, i2, i3);
+        init();
+
+        for (SwipeView swipeView : layerViews) {
+            swipeView.layout(swipeView.left, swipeView.top, swipeView.right, swipeView.bottom);
+        }
+
+        triangleView.layout(triangleView.left, triangleView.top, triangleView.right, triangleView.bottom);
+        lockView.layout(lockView.left, lockView.top, lockView.right, lockView.bottom);
+    }
+
+    protected void init() {
+
+        if (layersCreated) {
+            return;
+        }
+
+        layersCreated = true;
+
+        float widthMeasureSpec = this.getMeasuredWidth();
+        float heightMeasureSpec = this.getMeasuredHeight();
+
+        topOfPiramida = widthMeasureSpec * topMarginInPercent / 100;
+        bottomOfPiramida = heightMeasureSpec * (100 - bottomMarginInPercent) / 100;
+        leftOfPiramida = widthMeasureSpec * horizontalMarginInPercent / 100;
+        rightOfPiramida = widthMeasureSpec - leftOfPiramida;
+
+        heightOfPiramida = bottomOfPiramida - topOfPiramida;
+        widthOfPiramida = rightOfPiramida - leftOfPiramida;
+
+        headOfPiramida = topOfPiramida + heightOfPiramida * coeficentOfHead;
+        widthOfHead = widthOfPiramida * coeficentOfHead;
+
+        heightOfLayer = (bottomOfPiramida - headOfPiramida) / 8;
+        deltaWidthOfLayer = (widthOfPiramida - widthOfHead) / 8;
+
+        // Создать 8 слоев
+        for (int layer = 0; layer < 8; layer++) {
+            SwipeView swipeView = new SwipeView(context, deltaWidthOfLayer, layer,
+                    Math.round(widthOfPiramida - deltaWidthOfLayer * (float)layer),
+                    Math.round(heightOfLayer));
+            swipeView.left = Math.round(leftOfPiramida + deltaWidthOfLayer / 2 * (float)layer);
+            swipeView.top = Math.round(bottomOfPiramida - heightOfLayer * (float)(layer + 1));
+            swipeView.right = swipeView.left + Math.round(widthOfPiramida - deltaWidthOfLayer * (float)layer);
+            swipeView.bottom = swipeView.top + Math.round(heightOfLayer);
+            swipeView.tag = layer + 1000;
+            swipeView.delegate = new PyramidSwipeViewDelegate();
+            swipeView.userInteractive = userInteractive;
+
+            LayoutParams layoutParams = new LayoutParams(
+                    Math.round(widthOfPiramida - deltaWidthOfLayer * (float)layer),
+                    Math.round(heightOfLayer));
+            addView(swipeView, layoutParams);
+            layerViews.add(swipeView);
+        }
+
+        int triangleWidth = Math.round(widthOfHead);
+        int triangleHeight = Math.round(heightOfPiramida * coeficentOfHead);
+        triangleView = new TriangleView(context, triangleWidth, triangleHeight);
+        triangleView.left = Math.round(leftOfPiramida + widthOfPiramida / 2 - widthOfHead / 2);
+        triangleView.top = Math.round(topOfPiramida);
+        triangleView.right = Math.round(triangleView.left + triangleWidth);
+        triangleView.bottom = Math.round(triangleView.top + triangleHeight);
+        triangleView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!userInteractive) {
+                    return;
+                }
+
+                setPiramidaIsLocked(!piramidaIsLocked);
+
+                if (savingOn) {
+                    saveTranslation.setLockPiramida(piramidaIsLocked);
+                }
+            }
+        });
+
+        LayoutParams layoutParams = new LayoutParams(
+                Math.round(widthOfHead),
+                Math.round(heightOfPiramida * coeficentOfHead));
+        addView(triangleView, layoutParams);
+
+        lockView = new LockView(context, Math.round(widthOfPiramida + 24), Math.round(heightOfPiramida + 24));
+        lockView.left = Math.round(leftOfPiramida - 12);
+        lockView.top = Math.round(topOfPiramida - 12);
+        lockView.right = Math.round(rightOfPiramida + 12);
+        lockView.bottom = Math.round(bottomOfPiramida + 12);
+        lockView.setVisibility(lockViewInitialVisibility ? VISIBLE : INVISIBLE);
+        LayoutParams lvLayoutParams = new LayoutParams(
+                Math.round(widthOfPiramida + 24),
+                Math.round(heightOfPiramida + 24));
+        addView(lockView, lvLayoutParams);
+
+        updateAll();
+    }
+
+    public void updateAll() {
+        String[] oneSide = piramidaDataSource.getFrontSide();
+        for (int layer = 0; layer < 8; layer++) {
+            layerViews.get(layer).setText(oneSide[layer]);
+        }
+    }
+
+    protected void setPiramidaIsLocked(boolean locked) {
+        piramidaIsLocked = locked;
+        lockView.setVisibility(locked ? VISIBLE : INVISIBLE);
+    }
+
+    private class PyramidSwipeViewDelegate implements SwipeViewDelegate {
+        @Override
+        public String leftTurn(int layer) {
+            if (piramidaIsLocked) {
+                String[] frontSide = piramidaDataSource.allLeftTurn();
+
+                for (int tag = 1000; tag <= 1007; tag++) {
+//                    if (tag == layer + 1000) {
+//                        continue;
+//                    }
+
+                    layerViews.get(tag - 1000).turnLeft(piramidaDataSource.getTitle(tag - 1000));
+                }
+
+                if (savingOn) {
+                    saveTranslation.allLeftTurn();
+                }
+                return frontSide[layer];
+            }
+
+            if (savingOn) {
+                saveTranslation.leftTurn(layer);
+            }
+            return piramidaDataSource.leftTurn(layer);
+        }
+
+        @Override
+        public String rightTurn(int layer) {
+            if (piramidaIsLocked) {
+                String[] frontSide = piramidaDataSource.allRightTurn();
+
+                for (int tag = 1000; tag <= 1007; tag++) {
+//                    if (tag == layer + 1000) {
+//                        continue;
+//                    }
+
+                    layerViews.get(tag - 1000).turnRight(piramidaDataSource.getTitle(tag - 1000));
+
+                }
+
+                if (savingOn) {
+                    saveTranslation.allRightTurn();
+                }
+                return frontSide[layer];
+            }
+
+            if (savingOn) {
+                saveTranslation.rightTurn(layer);
+            }
+            return piramidaDataSource.rightTurn(layer);
+        }
+
+        @Override
+        public String getTitle(int layer) {
+            return piramidaDataSource.getTitle(layer);
+        }
+
+        @Override
+        public void setOneSide(int byLayer) {
+            piramidaDataSource.setOneSide(byLayer);
+
+            for (int tag = 1000; tag <= 1007; tag++) {
+                if (tag == byLayer + 1000) {
+                    // Можно сделать анимацию увеличения-уменьшения масштабирования
+                    layerViews.get(tag - 1000).playSwipe();
+                    continue;
+                }
+
+                if (tag % 2 == 0) {
+                    layerViews.get(tag - 1000).turnRight(piramidaDataSource.getTitle(tag - 1000));
+                } else {
+                    layerViews.get(tag - 1000).turnLeft(piramidaDataSource.getTitle(tag - 1000));
+                }
+            }
+            if (savingOn) {
+                saveTranslation.setOneSide(byLayer);
+            }
+        }
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/SwipeView.java
+package su.panfilov.piramida.components;
+
+import android.animation.ValueAnimator;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.Typeface;
+import android.media.MediaPlayer;
+import androidx.annotation.Dimension;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.DragEvent;
+import android.view.GestureDetector;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import su.panfilov.piramida.R;
+
+import static android.graphics.Typeface.DEFAULT_BOLD;
+
+public class SwipeView extends RelativeLayout {
+    private static final String TAG = "SwipeView";
+
+    final MediaPlayer mp;
+
+    private Context context;
+    private Paint paint;
+
+    private float deltaWidth;
+    private int numberOfLayer;
+
+    private SwipeViewBackground backgroundLayer;
+    public TextView label;
+    private ImageView polygon;
+
+    public SwipeViewDelegate delegate;
+
+    public int tag;
+
+    public int width;
+    public int height;
+    public int left;
+    public int top;
+    public int right;
+    public int bottom;
+
+    public boolean userInteractive = true;
+
+    public SwipeView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        this.context = context;
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+                R.styleable.SwipeView, 0, 0);
+        try {
+            deltaWidth = a.getFloat(R.styleable.SwipeView_deltaWidth, 1);
+            numberOfLayer = a.getInteger(R.styleable.SwipeView_layer, 1);
+        } finally {
+            a.recycle();
+        }
+
+        mp = MediaPlayer.create(context, R.raw.swipe_short);
+
+        setup();
+    }
+
+    public SwipeView(Context context, float deltaWidth, int layer, int width, int height) {
+        super(context);
+
+        this.context = context;
+
+        this.deltaWidth = deltaWidth;
+        this.numberOfLayer = layer;
+        this.width = width;
+        this.height = height;
+
+        mp = MediaPlayer.create(context, R.raw.swipe_short);
+
+        setup();
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        backgroundLayer.layout(0, 0, width, height);
+        if (numberOfLayer > 0) {
+            polygon.layout(Math.round(width / 2.0f - height / 4.0f), Math.round(height / 4.0f),
+                    Math.round(width / 2.0f + height / 4.0f), Math.round(height / 4.0f * 3));
+        }
+        label.measure(0, 0);
+        int labelWidth = label.getMeasuredWidth();
+        int labelHeight = label.getMeasuredHeight();
+        if (labelWidth > width - deltaWidth / 1.5) {
+            String text = label.getText().toString();
+            text = text.substring(0, text.length() / 2) + "\n" + text.substring(text.length() / 2);
+            label.setText(text);
+            label.setTextSize(Dimension.SP, height / 8);
+            label.measure(0, 0);
+            labelWidth = label.getMeasuredWidth();
+            labelHeight = label.getMeasuredHeight();
+        }
+        label.layout((width - labelWidth) / 2, (height - labelHeight) / 2, (width + labelWidth) / 2, (height + labelHeight) / 2);
+    }
+
+    private void setup() {
+        backgroundLayer = new SwipeViewBackground(context, deltaWidth, numberOfLayer, width, height);
+        addView(backgroundLayer);
+
+        if (numberOfLayer > 0) {
+            polygon = new ImageView(context);
+            int polygonIcon = getResources()
+                    .getIdentifier("ic_polygon_" + String.valueOf(numberOfLayer),
+                            "drawable", context.getPackageName());
+            polygon.setImageDrawable(getResources().getDrawable(polygonIcon));
+            addView(polygon);
+        }
+
+        label = new TextView(context);
+        label.setTextColor(numberOfLayer == 0 ? PyramidColors.textColor() : Color.WHITE);
+        label.setText("");
+        label.setPaintFlags(Paint.FAKE_BOLD_TEXT_FLAG);
+        label.setTextSize(Dimension.SP, Math.round(height / 6.0));
+        label.setTextAlignment(TEXT_ALIGNMENT_CENTER);
+        Typeface fontTypeFace = Typeface.create(DEFAULT_BOLD, Typeface.BOLD);
+        label.setTypeface(fontTypeFace);
+        addView(label);
+
+        setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if (!userInteractive) {
+                    return true;
+                }
+
+                didLongTap();
+
+                return true;
+            }
+        });
+
+        setOnTouchListener(new OnSwipeTouchListener(context) {
+
+            public void onSwipeRight() {
+                if (!userInteractive) {
+                    return;
+                }
+
+                didRightSwipe();
+            }
+
+            public void onSwipeLeft() {
+                if (!userInteractive) {
+                    return;
+                }
+
+                didLeftSwipe();
+            }
+
+        });
+    }
+
+    public void setText(String text) {
+        if (polygon != null) {
+            polygon.setVisibility(text.equals("") ? VISIBLE : INVISIBLE);
+        }
+        label.setText(text);
+        label.setTextSize(Dimension.SP, Math.round(height / 6.0));
+    }
+
+    public void update() {
+        if (delegate == null) {
+            return;
+        }
+
+        label.setText(delegate.getTitle(tag - 1000));
+    }
+
+    public void didLeftSwipe() {
+        if (delegate == null) {
+            return;
+        }
+
+        String title = delegate.leftTurn(tag - 1000);
+        playSwipe();
+        turnLeft(title);
+    }
+
+    public void didRightSwipe() {
+        if (delegate == null) {
+            return;
+        }
+
+        String title = delegate.rightTurn(tag - 1000);
+        playSwipe();
+        turnRight(title);
+    }
+
+    public void didLongTap() {
+        if (delegate == null) {
+            return;
+        }
+
+        delegate.setOneSide(tag - 1000);
+    }
+
+    public void playSwipe() {
+        mp.start();
+    }
+
+    public void turnLeft(String title) {
+        cubeTransition(title, false);
+    }
+
+    public void turnRight(String title) {
+        cubeTransition(title, true);
+    }
+
+    private void cubeTransition(final String text, final boolean toRight) {
+        float realWidth = width;
+        if (label.getText().equals("")) {
+            if (polygon != null) {
+                realWidth = polygon.getWidth();
+            }
+        } else {
+            realWidth = label.getWidth() == 0 ? width : label.getWidth();
+        }
+        float coeff = width / realWidth;
+        Log.d(TAG, "cubeTransition: hide " + coeff);
+
+        ScaleAnimation scaleAnimation = new ScaleAnimation(1.0f, 0.0f, 1.0f, 1.0f);
+        scaleAnimation.setDuration(200);
+
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, (toRight ? 0.5f + 0.2f * coeff : -0.2f * coeff) * (width - deltaWidth), 0, 0);
+        translateAnimation.setDuration(300);
+
+        AnimationSet animationHide = new AnimationSet(true);
+        animationHide.addAnimation(scaleAnimation);
+        animationHide.addAnimation(translateAnimation);
+
+        animationHide.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                setText(text);
+                float realWidth = width;
+                if (text.equals("")) {
+                    if (polygon != null) {
+                        realWidth = polygon.getWidth();
+                    }
+                } else {
+                    realWidth = label.getWidth() == 0 ? width : label.getWidth();
+                }
+                float coeff = width / realWidth;
+                Log.d(TAG, "cubeTransition: show " + coeff);
+
+                ScaleAnimation scaleAnimation = new ScaleAnimation(0.0f, 1.0f, 1.0f, 1.0f);
+                scaleAnimation.setDuration(300);
+
+                TranslateAnimation translateAnimation = new TranslateAnimation((toRight ? -0.2f * coeff : 0.5f + 0.2f * coeff) * (width - deltaWidth), 0, 0, 0);
+                translateAnimation.setDuration(200);
+
+                AnimationSet animationShow = new AnimationSet(true);
+                animationShow.addAnimation(scaleAnimation);
+                animationShow.addAnimation(translateAnimation);
+                if (text.equals("")) {
+                    if (polygon != null) {
+                        polygon.startAnimation(animationShow);
+                    }
+                } else {
+                    label.startAnimation(animationShow);
+                }
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        if (label.getText().equals("")) {
+            if (polygon != null) {
+                polygon.startAnimation(animationHide);
+            }
+        } else {
+            label.startAnimation(animationHide);
+        }
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/SwipeViewBackground.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import su.panfilov.piramida.R;
+
+public class SwipeViewBackground extends View {
+
+    private Context context;
+    private Paint paint;
+
+    private float deltaWidth;
+    private int numberOfLayer;
+
+    private Path path = new Path();
+
+    public int left;
+    public int top;
+    public int right;
+    public int bottom;
+
+    private int viewWidth = 0;
+    private int viewHeight = 0;
+
+    public SwipeViewBackground(Context context, AttributeSet attrs) {
+        super(context, attrs);
+
+        this.context = context;
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+                R.styleable.SwipeViewBackground, 0, 0);
+        try {
+            deltaWidth = a.getFloat(R.styleable.SwipeViewBackground_bgDeltaWidth, 1);
+            numberOfLayer = a.getInteger(R.styleable.SwipeViewBackground_bgNumberOfLayer, 1);
+        } finally {
+            a.recycle();
+        }
+    }
+
+    public SwipeViewBackground(Context context, float deltaWidth, int layer, int width, int height) {
+        super(context);
+
+        this.context = context;
+
+        this.deltaWidth = deltaWidth;
+        this.numberOfLayer = layer;
+        viewWidth = width;
+        viewHeight = height;
+    }
+
+    private void setup() {
+
+        path.reset();
+        path.moveTo(deltaWidth / 2.0f, 0);
+        path.lineTo(viewWidth - deltaWidth / 2.0f, 0);
+        path.lineTo(viewWidth, viewHeight);
+        path.lineTo(0, viewHeight);
+        path.close();
+
+        paint = new Paint();
+
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+
+        setup();
+
+        paint.setStyle(Paint.Style.FILL);
+        paint.setAntiAlias(true);
+        paint.setColor(PyramidColors.colors()[numberOfLayer]);
+        canvas.drawPath(path, paint);
+
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(3);
+        paint.setColor(PyramidColors.colors()[0]);
+        canvas.drawPath(path, paint);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/SwipeViewDelegate.java
+package su.panfilov.piramida.components;
+
+public interface SwipeViewDelegate {
+    String leftTurn(int layer);
+    String rightTurn(int layer);
+    String getTitle(int layer);
+    void setOneSide(int byLayer);
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/TestSetupActivity.java
+package su.panfilov.piramida;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class TestSetupActivity extends AppCompatActivity {
+    private int facetsCount;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test_setup);
+
+        facetsCount = getIntent().getIntExtra("FACETS_COUNT", 4);
+
+        EditText inputTheme = findViewById(R.id.inputTheme);
+        Button btnStartTest = findViewById(R.id.btnStartTest);
+
+        btnStartTest.setOnClickListener(v -> {
+            String theme = inputTheme.getText().toString().trim();
+            if (!theme.isEmpty()) {
+                Intent intent = new Intent(TestSetupActivity.this, TestProcessActivity.class);
+                intent.putExtra("FACETS_COUNT", facetsCount);
+                intent.putExtra("THEME", theme);
+                startActivity(intent);
+            }
+        });
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/TriangleView.java
+package su.panfilov.piramida.components;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+
+
+public class TriangleView extends View {
+
+    private Path path;
+    private Paint paint = new Paint();
+
+    public int left;
+    public int top;
+    public int right;
+    public int bottom;
+
+    private int viewWidth = 0;
+    private int viewHeight = 0;
+
+    public TriangleView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        setup();
+    }
+
+    public TriangleView(Context context, int width, int height) {
+        super(context);
+
+        viewWidth = width;
+        viewHeight = height;
+
+        setup();
+    }
+
+    private void setup() {
+//        setLayerType(View.LAYER_TYPE_SOFTWARE, paint);
+//        setBackgroundColor(getResources().getColor(R.color.colorAccent));
+
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (path == null) {
+//            viewWidth = getMeasuredWidth();
+//            viewHeight = getMeasuredHeight();
+//
+//            Log.d("1111","onDraw with viewWidth= " + viewWidth + " and viewHeight= " + viewHeight + " called...");
+
+            path = new Path();
+            path.reset();
+            path.moveTo(viewWidth / 2.0f, 0);
+            path.lineTo(viewWidth, viewHeight);
+            path.lineTo(0, viewHeight);
+            path.close();
+        }
+
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(3);
+        paint.setColor(PyramidColors.colors()[0]);
+        canvas.drawPath(path, paint);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/components/Utils.java
+package su.panfilov.piramida.components;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+public class Utils {
+    public static void CopyStream(InputStream is, OutputStream os)
+    {
+        final int buffer_size=1024;
+        try
+        {
+            byte[] bytes=new byte[buffer_size];
+            for(;;)
+            {
+                int count=is.read(bytes, 0, buffer_size);
+                if(count==-1)
+                    break;
+                os.write(bytes, 0, count);
+            }
+        }
+        catch(Exception ex){}
+    }
+
+    public static final String md5(final String s) {
+        final String MD5 = "MD5";
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = MessageDigest.getInstance(MD5);
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuilder hexString = new StringBuilder();
+            for (byte aMessageDigest : messageDigest) {
+                String h = Integer.toHexString(0xFF & aMessageDigest);
+                while (h.length() < 2)
+                    h = "0" + h;
+                hexString.append(h);
+            }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
+        Map<String, Object> retMap = new HashMap<String, Object>();
+
+        if(json != JSONObject.NULL) {
+            retMap = toMap(json);
+        }
+        return retMap;
+    }
+
+    public static Map<String, Object> toMap(JSONObject object) throws JSONException {
+        Map<String, Object> map = new HashMap<String, Object>();
+
+        Iterator<String> keysItr = object.keys();
+        while(keysItr.hasNext()) {
+            String key = keysItr.next();
+            Object value = object.get(key);
+
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            map.put(key, value);
+        }
+        return map;
+    }
+
+    public static List<Object> toList(JSONArray array) throws JSONException {
+        List<Object> list = new ArrayList<Object>();
+        for(int i = 0; i < array.length(); i++) {
+            Object value = array.get(i);
+            if(value instanceof JSONArray) {
+                value = toList((JSONArray) value);
+            }
+
+            else if(value instanceof JSONObject) {
+                value = toMap((JSONObject) value);
+            }
+            list.add(value);
+        }
+        return list;
+    }
+}
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/ContentsFragment.java
+package su.panfilov.piramida;
+
+import android.os.Bundle;
+import androidx.fragment.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import su.panfilov.piramida.components.ContentsAdapter;
+import su.panfilov.piramida.components.ContentsItemAdapter;
+import su.panfilov.piramida.models.PyramidsDataSource;
+
+public class ContentsFragment extends Fragment {
+
+    private boolean isFirstImage = true; // Track the current image state
+
+    public static ContentsFragment newInstance() {
+        return new ContentsFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_contents, container, false);
+
+        PyramidsDataSource pyramidsDataSource = new PyramidsDataSource();
+
+        // Create the ListView Adapter
+        ContentsAdapter adapter = new ContentsAdapter(rootView.getContext());
+
+        // Add Sections
+        for (int i = 0; i < pyramidsDataSource.getNameOfPiramids().length; i++) {
+            ArrayList<String> sectionItems = new ArrayList<>();
+            for (int j = i * 6; j < i * 6 + 6 && j < pyramidsDataSource.getSetOfTitles().length; j++) {
+                sectionItems.add(pyramidsDataSource.getTitleForHead(j + 1));
+            }
+            ContentsItemAdapter itemAdapter = new ContentsItemAdapter(rootView.getContext(), sectionItems);
+            adapter.addSection(pyramidsDataSource.getNameOfPiramids()[i], itemAdapter);
+        }
+
+        // Get a reference to the ListView holder
+        ListView contentsListView = rootView.findViewById(R.id.contentsListView);
+
+        // Set the adapter on the ListView holder
+        contentsListView.setAdapter(adapter);
+
+        // Find the ImageView by its ID
+        ImageView filterImageView = rootView.findViewById(R.id.filterImageView);
+
+        // Set an OnClickListener on the ImageView
+        filterImageView.setOnClickListener(v -> {
+            // Toggle the image
+            if (isFirstImage) {
+                filterImageView.setImageResource(R.drawable.lock_all_kutalog); // Change to the second image
+
+                // Reset the ListView to show the full catalog
+                resetToCatalogView(contentsListView, adapter, pyramidsDataSource);
+            } else {
+                filterImageView.setImageResource(R.drawable.unlock_all_kutalog); // Change back to the first image
+
+                // Apply filter functionality
+                applyFilter(contentsListView, adapter, pyramidsDataSource);
+            }
+            isFirstImage = !isFirstImage; // Toggle the state
+        });
+
+        return rootView;
+    }
+
+    private void resetToCatalogView(ListView contentsListView, ContentsAdapter adapter, PyramidsDataSource pyramidsDataSource) {
+        // Clear existing sections
+        adapter.clearSections();
+
+        // Re-add all sections
+        for (int i = 0; i < pyramidsDataSource.getNameOfPiramids().length; i++) {
+            ArrayList<String> sectionItems = new ArrayList<>();
+            for (int j = i * 6; j < i * 6 + 6 && j < pyramidsDataSource.getSetOfTitles().length; j++) {
+                sectionItems.add(pyramidsDataSource.getTitleForHead(j + 1));
+            }
+            ContentsItemAdapter itemAdapter = new ContentsItemAdapter(getContext(), sectionItems);
+            adapter.addSection(pyramidsDataSource.getNameOfPiramids()[i], itemAdapter);
+        }
+
+        // Notify the ListView that the data has changed
+        adapter.notifyDataSetChanged();
+    }
+
+    private void applyFilter(ListView contentsListView, ContentsAdapter adapter, PyramidsDataSource pyramidsDataSource) {
+        // Clear existing sections
+        adapter.clearSections();
+
+        // Apply filter logic
+        List<String> filteredItems = new ArrayList<>();
+        List<Boolean> filteredCheckBoxStates = new ArrayList<>();
+
+        for (int i = 0; i < pyramidsDataSource.getSetOfTitles().length; i++) {
+            // Ensure the adapter is not null
+            ContentsItemAdapter itemAdapter = (ContentsItemAdapter) adapter.sections.get(pyramidsDataSource.getNameOfPiramids()[0]);
+            if (itemAdapter != null) {
+                List<Boolean> checkBoxStates = itemAdapter.getCheckBoxStates();
+                if (i < checkBoxStates.size() && checkBoxStates.get(i)) {
+                    filteredItems.add(pyramidsDataSource.getTitleForHead(i + 1));
+                    filteredCheckBoxStates.add(true); // Set the checkbox state to "checked"
+                }
+            }
+        }
+
+        // Create a new adapter with filtered items
+        ContentsItemAdapter filteredAdapter = new ContentsItemAdapter(getContext(), filteredItems, filteredCheckBoxStates);
+        contentsListView.setAdapter(filteredAdapter);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/DiaryFragment.java
+package su.panfilov.piramida;
+
+import android.content.Context;
+import android.net.Uri;
+import android.os.Bundle;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import su.panfilov.piramida.components.DiariesAdapter;
+import su.panfilov.piramida.components.HelpAdapter;
+import su.panfilov.piramida.models.Diary;
+import su.panfilov.piramida.models.DiaryShort;
+import su.panfilov.piramida.models.HelpItem;
+
+public class DiaryFragment extends Fragment {
+
+    public PlayFragment playFragment;
+    public boolean playFragmentPresented = false;
+    private View rootView;
+
+    public static DiaryFragment newInstance() {
+        DiaryFragment fragment = new DiaryFragment();
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_diary, container, false);
+
+        initListView(rootView);
+
+        return rootView;
+    }
+
+    private void initListView(View rootView) {
+        Map<String, String> diaryTitlesMap = Diary.readDiariesTitlesFromCache(requireContext().getApplicationContext());
+
+        ArrayList<DiaryShort> diaryItems = new ArrayList<>(0);
+        for (Map.Entry<String, String> entry : diaryTitlesMap.entrySet()) {
+            DiaryShort diaryShort = new DiaryShort();
+            diaryShort.id = entry.getKey();
+            diaryShort.title = entry.getValue();
+            diaryItems.add(diaryShort);
+        }
+
+        DiariesAdapter diariesAdapter = new DiariesAdapter(this, diaryItems);
+
+        ListView diaryListView = rootView.findViewById(R.id.diaryListView);
+        diaryListView.setAdapter(diariesAdapter);
+    }
+
+    public void playTapped(View view) {
+        if (playFragment == null) {
+            return;
+        }
+
+        playFragment.playTapped(view);
+    }
+
+    public void backTapped(View view) {
+        playFragmentPresented = false;
+        try {
+            if (playFragment != null) {
+                FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                FrameLayout playLayout = getActivity().findViewById(R.id.playLayout);
+                playLayout.setVisibility(View.INVISIBLE);
+                ft.remove(playFragment);
+                ft.commit();
+                playFragment = null;
+            }
+        } catch (NullPointerException e) {
+            // Handle exception
+        }
+
+        if (playFragment == null) {
+            return;
+        }
+
+        playFragment.backTapped(view);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/HelpFragment.java
+package su.panfilov.piramida;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.net.Uri;
+import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+
+import su.panfilov.piramida.components.HelpAdapter;
+import su.panfilov.piramida.models.HelpItem;
+
+public class HelpFragment extends Fragment {
+
+    public static HelpFragment newInstance() {
+        return new HelpFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_help, container, false);
+
+        initListView(rootView);
+
+        return rootView;
+    }
+
+    private void initListView(View rootView) {
+        String[] titles = getResources().getStringArray(R.array.help_titles);
+        String[] subtitles = getResources().getStringArray(R.array.help_subtitles);
+
+        ArrayList<HelpItem> helpItems = new ArrayList<>(0);
+
+        for (int i = 0; i < titles.length; i++) {
+            if (!(titles.length > i || subtitles.length > i)) {
+                continue;
+            }
+
+            HelpItem helpItem = new HelpItem("", "");
+
+            if (titles.length > i) {
+                helpItem.title = titles[i];
+            }
+            if (subtitles.length > i) {
+                helpItem.subtitle = subtitles[i];
+            }
+
+            helpItems.add(helpItem);
+        }
+
+        HelpAdapter helpAdapter = new HelpAdapter(this, helpItems);
+
+        ListView helpListView = rootView.findViewById(R.id.helpListView);
+        helpListView.setAdapter(helpAdapter);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/MainActivity.java
+package su.panfilov.piramida;
+
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
+
+import androidx.annotation.ColorRes;
+import androidx.annotation.NonNull;
+
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.TextView;
+
+import java.lang.reflect.Field;
+
+import su.panfilov.piramida.components.BottomNavigationViewHelper;
+import su.panfilov.piramida.models.Diary;
+
+public class MainActivity extends AppCompatActivity {
+    private static final String SELECTED_ITEM = "arg_selected_item";
+
+    private BottomNavigationView mBottomNav;
+    private int mSelectedItem;
+
+    private Fragment frag;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.AppTheme_NoActionBar);
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        mBottomNav = findViewById(R.id.bottom_navigation);
+
+        BottomNavigationViewHelper.removeShiftMode(mBottomNav); // disable BottomNavigationView shift mode
+
+        mBottomNav.setOnNavigationItemSelectedListener(item -> {
+            selectFragment(item);
+            return true;
+        });
+
+        MenuItem selectedItem;
+        if (savedInstanceState != null) {
+            mSelectedItem = savedInstanceState.getInt(SELECTED_ITEM, 0);
+            selectedItem = mBottomNav.getMenu().findItem(mSelectedItem);
+        } else {
+            selectedItem = mBottomNav.getMenu().getItem(0);
+        }
+        selectFragment(selectedItem);
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putInt(SELECTED_ITEM, mSelectedItem);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onBackPressed() {
+        MenuItem homeItem = mBottomNav.getMenu().getItem(0);
+        if (mSelectedItem != homeItem.getItemId()) {
+            // select home item
+            selectFragment(homeItem);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    public void onAboutImageButtonClick(View view) {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.about_dialog);
+        dialog.setTitle(R.string.help_about);
+
+        // set the custom dialog components - text, image and button
+        Button closeButton = dialog.findViewById(R.id.aboutCloseButton);
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        TextView aboutText = dialog.findViewById(R.id.aboutText);
+
+        dialog.show();
+    }
+
+    public void onLinkButtonClick(View view) {
+        final Dialog dialog = new Dialog(MainActivity.this);
+        dialog.setContentView(R.layout.links_dialog);
+        dialog.setTitle(R.string.help_about_links);
+
+        // set the custom dialog components - text, image and button
+        Button closeButton = dialog.findViewById(R.id.linksCloseButton);
+        closeButton.setOnClickListener(v -> dialog.dismiss());
+
+        TextView aboutText = dialog.findViewById(R.id.linksText);
+
+        dialog.show();
+    }
+
+    public void recordTapped(View view) {
+        try {
+            PyramidFragment pyramidFragment = (PyramidFragment) frag;
+            pyramidFragment.recordTapped(view);
+        } catch (NullPointerException e) {
+            // Handle exception
+        }
+    }
+
+    public void doneTapped(View view) {
+        try {
+            PyramidFragment pyramidFragment = (PyramidFragment) frag;
+            pyramidFragment.doneTapped(view);
+        } catch (NullPointerException e) {
+            // Handle exception
+        }
+    }
+
+    private void selectFragment(MenuItem item) {
+        if (frag != null) {
+            FragmentTransaction ftremove = getSupportFragmentManager().beginTransaction();
+            ftremove.remove(frag);
+            ftremove.commit();
+        }
+
+        frag = null;
+        // init corresponding fragment
+
+        int itemId = item.getItemId();
+        if (itemId == R.id.pyramidTab) {
+            frag = PyramidFragment.newInstance();
+        } else if (itemId == R.id.testTab) {
+            frag = TestFragment.newInstance();
+        } else if (itemId == R.id.helpTab) {
+            frag = HelpFragment.newInstance();
+        } else if (itemId == R.id.contentsTab) {
+            frag = ContentsFragment.newInstance();
+        } else if (itemId == R.id.settingsTab) {
+            frag = SettingsFragment.newInstance();
+        }
+
+        // update selected item
+        mSelectedItem = itemId;
+
+        if (frag != null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.rootLayout, frag, frag.getTag());
+            ft.commit();
+        }
+    }
+
+
+
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/Diary.java
+package su.panfilov.piramida.models;
+
+import android.content.Context;
+import androidx.annotation.NonNull;
+import android.text.format.DateFormat;
+import android.util.JsonReader;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import su.panfilov.piramida.components.FileCache;
+import su.panfilov.piramida.components.Utils;
+
+public class Diary {
+    public String title;
+    public String note;
+    public int numberOfPiramida;
+    public Date timeStamp;
+    public ArrayList<HistoryCommands> historyCommands = new ArrayList<>(0);
+
+    public void saveState(Context context) {
+        Map<String, String> diariesTitles = readDiariesTitlesFromCache(context);
+        diariesTitles.put(getId(), title);
+        saveDiariesTitlesToCache(context, diariesTitles);
+        saveDiaryToCache(context, this);
+    }
+
+    public void delete(Context context) {
+        Map<String, String> diariesTitles = readDiariesTitlesFromCache(context);
+        diariesTitles.remove(getId());
+        saveDiariesTitlesToCache(context, diariesTitles);
+        deleteDiaryFromCache(context, getId());
+    }
+
+    public static Map<String, String> readDiariesTitlesFromCache(Context context) {
+        Map<String, String> diariesTitles = new TreeMap<>();
+
+        FileCache fileCache = new FileCache(context);
+        String diariesTitlesJson = fileCache.getStringFromFile("diaries_titles");
+        if (diariesTitlesJson.equals("")) {
+            diariesTitlesJson = "{}";
+        }
+        Gson gson = new Gson();
+        diariesTitles = gson.fromJson(diariesTitlesJson, new TypeToken<TreeMap<String, String>>() {}.getType());
+
+        return diariesTitles;
+    }
+
+    private void saveDiariesTitlesToCache(Context context, Map<String, String> diariesTitles) {
+        FileCache fileCache = new FileCache(context);
+        Gson gson = new Gson();
+        String diariesTitlesJson = gson.toJson(diariesTitles, new TypeToken<TreeMap<String, String>>() {}.getType());
+        fileCache.putStringToFile("diaries_titles", diariesTitlesJson);
+    }
+
+    public static Diary readDiaryFromCache(Context context, String id) {
+        FileCache fileCache = new FileCache(context);
+        String diaryDataJson = fileCache.getStringFromFile("diary_data_" + id);
+        if (diaryDataJson.equals("")) {
+            diaryDataJson = "{}";
+        }
+        Gson gson = new Gson();
+        Diary diary = gson.fromJson(diaryDataJson, Diary.class);
+
+        return diary;
+    }
+
+    private void saveDiaryToCache(Context context, Diary diary) {
+        FileCache fileCache = new FileCache(context);
+        Gson gson = new Gson();
+        String diaryDataJson = gson.toJson(diary, Diary.class);
+        fileCache.putStringToFile("diary_data_" + diary.getId(), diaryDataJson);
+    }
+
+    private void deleteDiaryFromCache(Context context, String id) {
+        FileCache fileCache = new FileCache(context);
+        fileCache.deleteFile("diary_data_" + id);
+    }
+
+    public String getId() {
+        return DateFormat.format("yyyyMMddHHmmss", timeStamp).toString();
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/DiaryShort.java
+package su.panfilov.piramida.models;
+
+public class DiaryShort {
+    public String title;
+    public String id;
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/HelpItem.java
+package su.panfilov.piramida.models;
+
+public class HelpItem {
+    public String title;
+    public String subtitle;
+
+    public HelpItem(String title, String subtitle) {
+        this.title = title;
+        this.subtitle = subtitle;
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/HistoryCommands.java
+package su.panfilov.piramida.models;
+
+public class HistoryCommands {
+    public int command;
+    public int layer;
+    public int index;
+    public double deltaTime;
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/PyramidsDataSource.java
+package su.panfilov.piramida.models;
+
+
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+
+public class PyramidsDataSource {
+
+    private String[][] setOfTitles = {
+            {"ТОЧКА СБОРКИ", "", "", "", "", "", "", ""},
+            // Пирамида Бытия
+            {"ГЕРОЙ", "Атлет", "Боец", "Тактик", "Воин", "Вождь", "Стратег", "Мистик"},
+            {"ВЛИЯНИЕ", "Тело", "Закон", "Финансы", "Технология", "Коммуникация", "Информация", "Состояние"},
+            {"КОММУНИКАЦИЯ", "Одиночество","Контакт","Знакомство","Товарищество","Дружба","Партнерство","Уединение"},
+            {"СОЗНАНИЕ","Актуальное","Оперативное","Подсознательное","Бессознательное","Эгрегоры","Архетипы","Элементы"},
+            {"ТВОРЧЕСТВО","Материал","Форма","Стиль","Вдохновение","Утверждение","Воображение","Откровение"},
+            {"ДЕЯТЕЛЬНОСТЬ","Ремесло","Технология","Наука","Методология","Философия","Искусство","Индивидуация"},
+            // Пирамида Коммуникации
+            {"РЕПУТАЦИЯ","Узнавание","Воспоминание","Знакомство","Расположенность","Эксперимент","Утверждение","Рекомендация"},
+            {"ОТНОШЕНИЕ","Созерцание","Узнавание","Инициация","Постижение","Служение","Творение","Единение"},
+            {"ИНТЕГРАЦИЯ","Отдаленность","Включение","Роль","Статус","Отношения","Интеграция","Представительство"},
+            {"ХОЛОС","Физический","Эмоциональный","Личностный","Межличностный","Социальный","Принципиальный","Универсальный"},
+            {"ЦЕННОСТИ","Выживание","Инициатива","Гибкость","Искренность","Равностность","Результат","Бытие"},
+            {"СОСТОЯНИЕ","Равнодушие","Любопытство","Интерес","Принятие","Понимание","Доверие","Любовь"},
+            // Пирамида Социум
+            {"ОБЩЕСТВО","Личность","Семья","Клан","Род","Народ","Нация","Вид"},
+            {"НЕЙРОЛОГИКА","Окружение","Поведение","Способности","Убеждения","Ценности","Идентичность","Миссия"},
+            {"ПОТРЕБНОСТИ","Физиология","Безопасность","Принадлежность","Признание","Познание","Эстетика","Реализация"},
+            {"КЛИЕНТЫ","Холодный рынок","Потенциальные потребители","Посетители","Переговорщики","Повторные клиенты","Постоянные клиенты","Приверженцы"},
+            {"ИНФОРМАЦИЯ","Носитель","Восприятие","Язык","Преобразование","Смысл","Цель","Поле"},
+            //{"КУЛЬТУРА","Религия","Миф","Искусство","Наука","Техника","Право","Язык"}, // version 1.0
+            {"КУЛЬТУРА","Язык","Право","Техника","Наука","Миф","Искусство","Религия"}, // version 1.1
+            // Пирамида Деятельность
+            {"ЛИДЕР","Оппортунист","Дипломат","Эксперт","Достиженец","Индивидуалист","Стратег","Алхимик"},
+            {"УПРАВЛЕНИЕ","Персона","Задачи","Процессы","Качество","Цели","Культура","Организация"},
+            {"ПРОЦЕССЫ","Этика","Планирование","Администрирование","Реализация","Развитие","Изменение","Видение"},
+            //{"БРЕНД","Образ","Динамика","Коммуникация","Метафора","Территория","Миф","Резонанс"}, // version 1.0
+            {"БРЕНД","Образ","Динамика","Коммуникация","Метафора","Территория","Миф","Резонанс"}, // version 1.1
+            {"ЖИЗНЕННЫЙ ЦИКЛ","Предпринимательство","Партнерство","Команда","Структура","Процессы","Производительность","Капитализация"},
+            {"ЦЕЛИ","Поступок","Ситуация","Операция","Тактика","Проект","Стратегия","Амбиция"}
+    };
+
+    private String[][] setOfTitlesDe = {
+            {"Montagepunkt", "", "", "", "", "", "", ""},
+            // Пирамида Бытия
+            {"HELD", "Athlet","Kämpfer","Taktiker","Krieger","Führer","Stratege","Mystiker"},
+            {"EINFLUSS", "Körper","Gesetz","Finanzen","Technologie","Kommunikation","Information","Zustand"},
+            {"KOMMUNIKATION", "Einsamkeit","Kontakt","Bekanntschaft","Kameradschaft","Freundschaft","Partnerschaft","Abgeschiedenheit"},
+            {"BEWUSSTSEIN","Akutelles","Operatives","Unterbewusste","Unbewusste","Egregors","Archetypen","Elemente"},
+            {"SCHAFFEN","Material","Form","Stil","Inspiration","Aussage","Vorstellungsvermögen","Offenbarung"},
+            {"TÄTIGKEIT","Handwerk","Technologie","Wissenschaft","Methodologie","Philosophie","Kunst","Individuation"},
+            // Пирамида Коммуникации
+            {"REPUTATION","Erkennung","Erinnerung","Bekannschaft","Befindlichkeit","Experiment","Aussage","Empfehlung"},
+            {"EINSTELLUNG","Betrachten","Erkennen","Initiation","Begreifen","Mission","Schöpfung","Einigkeit"},
+            {"INTEGRATION","Abstand","Aufnahme","Rolle","Status","Beziehung","Integration","Repräsentation"},
+            {"HOLOS","Physisches","Emotionales","Persönliches","Zwischenmenschlich","Soziales","Prinzipielles","Universelles"},
+            {"WERTE","Überleben","Initiative","Flexibilität","Aufrichtigkeit","Gleichheit","Resultat","Dasein"},
+            {"ZUSTÄNDE","Gleichgültigkeit","Neugier","Interesse","Annahme","Verständnis","Vertrauen","Liebe"},
+            // Пирамида Социум
+            {"GESELLSCHAFT","Persönlichkeit","Familie","Sippe","Stamm","Volk","Nation","Gattung"},
+            {"HEUROLOGIK","Umgebung","Verhalten","Fägikeiten","Überzeugungen","Werte","Identität","Mission"},
+            {"BEDÜRFNISSE","Physiologie","Sicherheit","Zugehörigkeit","Anerkennung","Erkenntnis","Ästhetik","Realisierung"},
+            {"KUNDEN","Kalter Markt","Potenzielle Kundschaft","Besucher","Vermittler","Wiederholungskundschaft","Stmmkundschaft","Anhängerschaft"},
+            {"INFORMATION","Träger","Wahrnehmung","Sprache","Modifikation","Sinn","Ziel","Feld"},
+            //{"КУЛЬТУРА","Религия","Миф","Искусство","Наука","Техника","Право","Язык"}, // version 1.0
+            {"KULTUR","Sprache","Recht","Technik","Wissenschaft","Mythos","Kunst","Religion"}, // version 1.1
+            // Пирамида Деятельность
+            {"FÜHRER","Opportunist","Diplomat","Experte","Zielstrebig","Individualist","Stratege","Alchimist"},
+            {"MANAGEMENT","Peson","Aufgaben","Prozesse","Qualität","Ziele","Kultur","Organisation"},
+            {"PROZESSE","Ethik","Planung","Administration","Realisierung","Entwicklung","Veränderung","Vision"},
+            //{"БРЕНД","Образ","Динамика","Коммуникация","Метафора","Территория","Миф","Резонанс"}, // version 1.0
+            {"MARKE","Image","Dynamik","Kommunikation","Metapher","Gebiet","Mythos","Resonanz"}, // version 1.1
+            {"LEBENSZYKLUS","Unternehmen","Partnerschaft","Team","Struktur","Prozesse","(Betriebs)Leistung","Kapitalisierung"},
+            {"ZIELE","Tat","Situation","Operation","Taktik","Projekt","Strategie","Ambition"}
+    };
+
+    public String[] nameOfPiramids = {"Пирамида Бытия", "Пирамида Коммуникации", "Пирамида Социум", "Пирамида Деятельность"};
+
+    public String[] nameOfPiramidsDe = {"Dasein", "Kommunikation", "Soz.Umfeld", "Tätigkeit"};
+
+    public int[] sideByLayer = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    // Получить текущий заголовок для слоя layer
+    public String getTitle(int layer) {
+        int side = sideByLayer[layer];
+        String[][] setOfTitles = getSetOfTitles();
+        return setOfTitles[side][layer];
+    }
+
+    // Получить название грани (нижний слой)
+    public String getTitleForHead(int side) {
+        String[][] setOfTitles = getSetOfTitles();
+        return setOfTitles[side][0];
+    }
+
+    // Получить массив заголовков грани
+    public String[] getFrontSide() {
+        ArrayList<String> frontSide = new ArrayList<String>(0);
+        String[][] setOfTitles = getSetOfTitles();
+        for (int layer = 0; layer < sideByLayer.length; layer++) {
+            int side = sideByLayer[layer];
+            frontSide.add(setOfTitles[side][layer]);
+        }
+        String[] s = {};
+        s = frontSide.toArray(s);
+
+        return s;
+    }
+
+    // Получить массив заголовков грани
+    public ArrayList<String> getSideTitles(int side) {
+        String[][] setOfTitles = getSetOfTitles();
+        ArrayList<String> sideTitles = new ArrayList<String>(0);
+        sideTitles.addAll(Arrays.asList(setOfTitles[side]));
+
+        return sideTitles;
+    }
+
+    // Повернуть влево слой layer
+    public String leftTurn(int layer) {
+        String[][] setOfTitles = getSetOfTitles();
+        int side = sideByLayer[layer] + 1;
+        if (side >= setOfTitles.length) {
+            side = 0;
+        }
+        sideByLayer[layer] = side;
+
+        return setOfTitles[side][layer];
+    }
+
+    // Повернуть вправо слой layer
+    public String rightTurn(int layer) {
+        String[][] setOfTitles = getSetOfTitles();
+        int side = sideByLayer[layer] - 1;
+        if (side < 0) {
+            side = setOfTitles.length - 1;
+        }
+        sideByLayer[layer] = side;
+
+        return setOfTitles[side][layer];
+    }
+
+    // Повернуть влево грань
+    public String[] allLeftTurn() {
+        for (int layer = 0; layer < sideByLayer.length; layer++) {
+            leftTurn(layer);
+        }
+
+        return getFrontSide();
+    }
+
+    // Повернуть вправо грань
+    public String[] allRightTurn() {
+        for (int layer = 0; layer < sideByLayer.length; layer++) {
+            rightTurn(layer);
+        }
+
+        return getFrontSide();
+    }
+
+    // Устновить грань по слою layer
+    public void setOneSide(int layer) {
+        int side = sideByLayer[layer];
+        for (int i = 0; i < 8; i++) {
+            sideByLayer[i] = side;
+        }
+    }
+
+    // Установить слой layer на грань
+    public void setLayer(int layer, int index) {
+        sideByLayer[layer] = index;
+    }
+
+    // Установить все слои по гране index
+    public void setSide(int[] layers) {
+        for (int index = 0; index < layers.length; index++) {
+            int layer = layers[index];
+            sideByLayer[layer] = index;
+        }
+    }
+
+    public String[] getNameOfPiramids() {
+        return Locale.getDefault().getLanguage().equals("de") ?
+                this.nameOfPiramidsDe : this.nameOfPiramids;
+    }
+
+    public String[][] getSetOfTitles() {
+        return Locale.getDefault().getLanguage().equals("de") ?
+                this.setOfTitlesDe : this.setOfTitles;
+    }
+
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/SaveTranslation.java
+package su.panfilov.piramida.models;
+
+import android.content.Context;
+
+import java.util.Date;
+
+public class SaveTranslation {
+
+    public static enum PiramidaCommands {
+        none,
+        setLayer, // Установка слоя по индексу
+        leftTurn,
+        rightTurn,
+        allLeftTurn,
+        allRightTurn,
+        setLockPiramida,
+        setOneSide
+    }
+
+    public static int numberOfPiramidas = 0;
+    public Diary diary;
+    private Date timeLastCommand = new Date();
+
+    private Context context;
+
+    public SaveTranslation(Context context) {
+        this.context = context;
+    }
+
+    private void addCommand(PiramidaCommands command, int layer, int index) {
+
+        HistoryCommands historyCommand = new HistoryCommands();
+        historyCommand.command = command.ordinal();
+        historyCommand.layer = layer;
+        historyCommand.index = index;
+        historyCommand.deltaTime = (new Date().getTime() - timeLastCommand.getTime()) / 1000.0;
+
+        diary.historyCommands.add(historyCommand);
+
+        diary.saveState(context);
+
+        timeLastCommand = new Date();
+    }
+
+    private void addCommand(PiramidaCommands command, int layer) {
+        this.addCommand(command, layer, 1);
+    }
+
+    private void addCommand(PiramidaCommands command) {
+        this.addCommand(command, 0, 1);
+    }
+
+    public void startSaving(int[] sideByLayer, boolean locked) {
+        // Обнулить счетчик
+        timeLastCommand = new Date();
+
+        for (int index = 0; index < sideByLayer.length; index++) {
+            int layer = sideByLayer[index];
+            addCommand(PiramidaCommands.setLayer, layer, index);
+        }
+
+        setLockPiramida(locked, false);
+    }
+
+    public void stopSaving() {
+        addCommand(PiramidaCommands.none);
+    }
+
+    public void leftTurn(int layer) {
+        addCommand(PiramidaCommands.leftTurn, layer);
+    }
+
+    public void rightTurn(int layer) {
+        addCommand(PiramidaCommands.rightTurn, layer);
+    }
+
+    public void allLeftTurn() {
+        addCommand(PiramidaCommands.allLeftTurn);
+    }
+
+    public void allRightTurn() {
+        addCommand(PiramidaCommands.allRightTurn);
+    }
+
+    public void setLockPiramida(boolean locked, boolean soundEffect) {
+        addCommand(PiramidaCommands.setLockPiramida, (locked ? 1 : 0), (soundEffect ? 1 : 0));
+    }
+
+    public void setLockPiramida(boolean locked) {
+        setLockPiramida(locked, true);
+    }
+
+    public void setOneSide(int layer) {
+        addCommand(PiramidaCommands.setOneSide, layer);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/models/SharedViewModel.java
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
+import java.util.List;
+
+public class SharedViewModel extends ViewModel {
+    private MutableLiveData<List<String>> activeItems = new MutableLiveData<>();
+
+    public void setActiveItems(List<String> items) {
+        activeItems.setValue(items);
+    }
+
+    public MutableLiveData<List<String>> getActiveItems() {
+        return activeItems;
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/PlayFragment.java
+package su.panfilov.piramida;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import androidx.fragment.app.Fragment;
+import android.text.InputType;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import su.panfilov.piramida.components.PyramidView;
+import su.panfilov.piramida.models.Diary;
+import su.panfilov.piramida.models.HistoryCommands;
+import su.panfilov.piramida.models.SaveTranslation;
+
+public class PlayFragment extends Fragment {
+
+    private static final String TAG = "PlayFragment";
+    View rootView;
+    private boolean playingOn = false; // Флаг записи
+    public PyramidView piramidaView;
+    public ImageButton playButton;
+    public ImageButton backButton;
+
+    public SaveTranslation.PiramidaCommands command = SaveTranslation.PiramidaCommands.none;
+    public Diary diary;
+    int currentCommand = 0;
+
+    public static PlayFragment newInstance() {
+        PlayFragment fragment = new PlayFragment();
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_play, container, false);
+
+        piramidaView = rootView.findViewById(R.id.pyramidPlay);
+        playButton = rootView.findViewById(R.id.playButton);
+        setPlayingOn(false);
+
+        piramidaView.userInteractive = false;
+        // addObservers();
+
+        initStartState();
+        return rootView;
+    }
+
+    private void initStartState() {
+        currentCommand = 0;
+        int countOfCommands = 0;
+
+        if (diary.historyCommands.size() > 0) {
+            countOfCommands = diary.historyCommands.size();
+        }
+
+        if (countOfCommands >= 9) {
+            for (int layer = 0; layer <= 7; layer++) {
+                HistoryCommands command = diary.historyCommands.get(layer);
+                piramidaView.piramidaDataSource.setLayer(command.layer, command.index);
+            }
+            HistoryCommands command = diary.historyCommands.get(8);
+            piramidaView.lockViewInitialVisibility = command.layer != 0;
+            currentCommand = 9;
+        }
+
+        if (piramidaView.layerViews.size() > 0) {
+            piramidaView.updateAll();
+        }
+    }
+
+    public void setPlayingOn(boolean playingOn) {
+        this.playingOn = playingOn;
+        if (playingOn) {
+            playButton.setImageDrawable(requireContext().getDrawable(R.drawable.pause));
+        } else {
+            playButton.setImageDrawable(requireContext().getDrawable(R.drawable.play));
+        }
+    }
+
+    public boolean getPlayingOn() {
+        return playingOn;
+    }
+
+    public Diary getDiary() {
+        return diary;
+    }
+
+    public void playTapped(View view) {
+        setPlayingOn(!playingOn);
+        if (playingOn) {
+            initStartState();
+            nextCommand(currentCommand);
+        }
+    }
+
+    public void backTapped(View view) {
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        setPlayingOn(false);
+    }
+
+    public void nextCommand(int indexOfCommand) {
+        nextCommand(indexOfCommand, false);
+    }
+
+    public void nextCommand(int indexOfCommand, boolean animated) {
+        if (!playingOn) {
+            return;
+        }
+
+        int countOfCommands = diary.historyCommands.size();
+        if (countOfCommands <= indexOfCommand) {
+            setPlayingOn(false);
+            return;
+        }
+
+        HistoryCommands command;
+        try {
+            command = diary.historyCommands.get(indexOfCommand);
+        } catch (Exception e) {
+            setPlayingOn(false);
+            return;
+        }
+
+        if (command == null) {
+            setPlayingOn(false);
+            return;
+        }
+
+        int layer = command.layer;
+        int index = command.index;
+        TextView label = piramidaView.layerViews.get(layer).label;
+        String newTitle;
+
+        switch (SaveTranslation.PiramidaCommands.values()[command.command]) {
+            case setLayer:
+                piramidaView.piramidaDataSource.setLayer(layer, index);
+                newTitle = piramidaView.piramidaDataSource.getTitle(layer);
+                label.setText(newTitle);
+                break;
+            case leftTurn:
+                piramidaView.layerViews.get(layer).playSwipe();
+                newTitle = piramidaView.piramidaDataSource.leftTurn(layer);
+                piramidaView.layerViews.get(layer).turnLeft(newTitle);
+                break;
+            case rightTurn:
+                piramidaView.layerViews.get(layer).playSwipe();
+                newTitle = piramidaView.piramidaDataSource.rightTurn(layer);
+                piramidaView.layerViews.get(layer).turnRight(newTitle);
+                break;
+            case allLeftTurn:
+                String[] newTitles = piramidaView.piramidaDataSource.allLeftTurn();
+
+                for (int layerNum = 0; layerNum <= 7; layerNum++) {
+                    if (layerNum == 0) {
+                        piramidaView.layerViews.get(layerNum).playSwipe();
+                    }
+
+                    piramidaView.layerViews.get(layerNum).turnLeft(newTitles[layerNum]);
+                }
+                break;
+
+            case allRightTurn:
+                String[] newTitles2 = piramidaView.piramidaDataSource.allRightTurn();
+
+                for (int layerNum = 0; layerNum <= 7; layerNum++) {
+                    if (layerNum == 0) {
+                        piramidaView.layerViews.get(layerNum).playSwipe();
+                    }
+
+                    piramidaView.layerViews.get(layerNum).turnRight(newTitles2[layerNum]);
+                }
+                break;
+
+            case setLockPiramida:
+                if (index == 1) {
+//                    audioPlayer.stop();
+//                    audioPlayer.play();
+                }
+                piramidaView.lockView.setVisibility(layer == 0 ? View.INVISIBLE : View.VISIBLE);
+                break;
+            case setOneSide:
+                piramidaView.piramidaDataSource.setOneSide(layer);
+
+                for (int layerIn = 0; layerIn <= 7; layerIn++) {
+                    if (layerIn == layer) {
+                        // Можно сделать анимацию увеличения-уменьшения масштабирования
+                        piramidaView.layerViews.get(layerIn).playSwipe();
+                        continue;
+                    }
+
+                    if (layerIn % 2 == 0) {
+                        piramidaView.layerViews.get(layerIn).turnRight(piramidaView.piramidaDataSource.getTitle(layerIn));
+                    } else {
+                        piramidaView.layerViews.get(layerIn).turnLeft(piramidaView.piramidaDataSource.getTitle(layerIn));
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        if (!(indexOfCommand + 1 < countOfCommands && diary.historyCommands.size() >= currentCommand + 1)) {
+            setPlayingOn(false);
+            return;
+        }
+
+        currentCommand = indexOfCommand + 1;
+        HistoryCommands nextCommandObject = diary.historyCommands.get(currentCommand);
+
+        // schedule next command
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    requireActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            nextCommand(currentCommand, true);
+                        }
+                    });
+                } catch (NullPointerException e) {
+                    // Handle exception
+                }
+            }
+        }, Math.round(nextCommandObject.deltaTime * 1000));
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/PyramidFragment.java
+package su.panfilov.piramida;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.res.Configuration;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Parcelable;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import android.text.InputType;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+
+import java.util.Date;
+
+import su.panfilov.piramida.components.PyramidView;
+import su.panfilov.piramida.models.Diary;
+import su.panfilov.piramida.models.SaveTranslation;
+
+public class PyramidFragment extends Fragment {
+
+    private static final String TAG = "PyramidFragment";
+
+    View rootView;
+
+    public boolean newRecord = true;
+    private boolean savingOn = false; // Флаг записи
+
+    public PyramidView piramidaView;
+    public ImageButton recordButton;
+    public Button doneButton;
+
+    private Diary diary;
+
+    public static PyramidFragment newInstance() {
+        PyramidFragment fragment = new PyramidFragment();
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        rootView = inflater.inflate(R.layout.fragment_pyramid, container, false);
+
+        piramidaView = rootView.findViewById(R.id.pyramid);
+        recordButton = rootView.findViewById(R.id.recordButton);
+        doneButton = rootView.findViewById(R.id.doneButton);
+        setSavingOn(false);
+        doneButton.setVisibility(View.INVISIBLE);
+
+        return rootView;
+    }
+
+    public void setSavingOn(boolean savingOn) {
+        this.savingOn = savingOn;
+        piramidaView.savingOn = savingOn;
+        if (savingOn) {
+            // Нажата кнопка записи
+            recordButton.setImageDrawable(requireContext().getDrawable(R.drawable.stop));
+            doneButton.setVisibility(View.INVISIBLE);
+        } else {
+            // Нажата кнопка стоп
+            recordButton.setImageDrawable(requireContext().getDrawable(R.drawable.done));
+            doneButton.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public boolean getSavingOn() {
+        return savingOn;
+    }
+
+    public void setDiary(Diary diary) {
+        this.diary = diary;
+        piramidaView.saveTranslation.diary = diary;
+    }
+
+    public Diary getDiary() {
+        return diary;
+    }
+
+    public void recordTapped(View view) {
+        setSavingOn(!savingOn);
+
+        Log.d(TAG, "recordTapped: " + getSavingOn());
+
+        if (savingOn) {
+            if (newRecord) {
+                // Добавить новую запись
+                setDiary(new Diary());
+                diary.title = "Новая запись";
+                diary.timeStamp = new Date();
+                diary.numberOfPiramida = SaveTranslation.numberOfPiramidas;
+
+                diary.saveState(requireContext().getApplicationContext());
+
+                newRecord = false;
+            }
+
+            piramidaView.saveTranslation.startSaving(piramidaView.piramidaDataSource.sideByLayer, piramidaView.piramidaIsLocked);
+        } else {
+            piramidaView.saveTranslation.stopSaving();
+        }
+    }
+
+    public void doneTapped(View view) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle(getString(R.string.saving));
+
+        final EditText input = new EditText(requireContext());
+        input.setText(getString(R.string.new_record));
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newRecord = true;
+                diary.title = input.getText().toString();
+                diary.saveState(requireContext().getApplicationContext());
+                diary = null;
+            }
+        });
+        builder.setNegativeButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                newRecord = true;
+                diary.delete(requireContext().getApplicationContext());
+                setDiary(null);
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+        doneButton.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (diary != null) {
+            diary.delete(requireContext().getApplicationContext());
+        }
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/SettingsFragment.java
+package su.panfilov.piramida;
+
+import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SettingsFragment extends Fragment {
+
+    public SettingsFragment() {
+        // Required empty public constructor
+    }
+
+    public static SettingsFragment newInstance() {
+        return new SettingsFragment();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        // Initialize the ListView with settings options
+        initListView(rootView);
+
+        return rootView;
+    }
+
+    private void initListView(View rootView) {
+        // Create a list of settings options
+        List<String> settingsOptions = new ArrayList<>();
+        settingsOptions.add("Notifications");
+        settingsOptions.add("Theme");
+        settingsOptions.add("Language");
+        settingsOptions.add("Privacy Policy");
+        settingsOptions.add("About");
+
+        // Get the ListView from the layout
+        ListView settingsListView = rootView.findViewById(R.id.settingsTab);
+
+        if (settingsListView != null) {
+            // Create an ArrayAdapter to populate the ListView
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                    requireContext(), // Context
+                    android.R.layout.simple_list_item_1, // Layout for each item
+                    settingsOptions // Data
+            );
+
+            // Set the adapter to the ListView
+            settingsListView.setAdapter(adapter);
+
+            // Set item click listener for the ListView
+            settingsListView.setOnItemClickListener((parent, view, position, id) -> {
+                String selectedItem = settingsOptions.get(position);
+                // Handle item click based on the selected item
+                switch (selectedItem) {
+                    case "Notifications":
+                        // Open notifications settings
+                        break;
+                    case "Theme":
+                        // Open theme settings
+                        break;
+                    case "Language":
+                        // Open language settings
+                        break;
+                    case "Privacy Policy":
+                        // Open privacy policy
+                        break;
+                    case "About":
+                        // Open about section
+                        break;
+                }
+            });
+        } else {
+            // Log an error message if the ListView is null
+            Log.e("SettingsFragment", "ListView is null");
+        }
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/TestActivity.java
+package su.panfilov.piramida;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class TestActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test);
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/TestFragment.java
+package su.panfilov.piramida;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import su.panfilov.piramida.components.AboutTestActivity;
+
+public class TestFragment extends Fragment {
+
+    public static TestFragment newInstance() {
+        return new TestFragment();
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_test, container, false);
+
+        // Найдем кнопки в разметке
+        Button btnDay = view.findViewById(R.id.btnDay);
+        Button btnMonth = view.findViewById(R.id.btnMonth);
+        Button btnYear = view.findViewById(R.id.btnYear);
+        Button btnDecade = view.findViewById(R.id.btnDecade);
+        Button btnResults = view.findViewById(R.id.btnResults);
+        Button btnAboutTest = view.findViewById(R.id.btnAboutTest);
+
+        // Запуск тестирования с разным количеством граней
+        btnDay.setOnClickListener(v -> startTest(4));
+        btnMonth.setOnClickListener(v -> startTest(12));
+        btnYear.setOnClickListener(v -> startTest(20));
+        btnDecade.setOnClickListener(v -> startTest(54));
+
+        // Открытие списка результатов тестов
+        btnResults.setOnClickListener(v -> openResults());
+
+        // Открытие информации о тесте
+        btnAboutTest.setOnClickListener(v -> openAboutTest());
+
+        return view;
+    }
+
+    /**
+     * Запускает процесс тестирования с заданным количеством граней
+     */
+    private void startTest(int facets) {
+        if (getActivity() != null) {
+            Intent intent = new Intent(getActivity(), TestProcessActivity.class);
+            intent.putExtra("FACETS_COUNT", facets);
+            startActivity(intent);
+        }
+    }
+
+    /**
+     * Открывает экран результатов тестов
+     */
+    private void openResults() {
+        if (getActivity() != null) {
+            startActivity(new Intent(getActivity(), TestResultsActivity.class));
+        }
+    }
+
+    /**
+     * Открывает экран "О тесте"
+     */
+    private void openAboutTest() {
+        if (getActivity() != null) {
+            startActivity(new Intent(getActivity(), AboutTestActivity.class));
+        }
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/TestProcessActivity.java
+package su.panfilov.piramida;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.ArrayList;
+import java.util.Random;
+
+public class TestProcessActivity extends AppCompatActivity {
+    private int facetsCount;
+    private int currentFacet = 0;
+    private ProgressBar progressBar;
+    private TextView textFacet;
+    private ArrayList<String[]> facetsList; // Список граней
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test_process);
+
+        facetsCount = getIntent().getIntExtra("FACETS_COUNT", 4);
+        progressBar = findViewById(R.id.progressBar);
+        textFacet = findViewById(R.id.textFacet);
+        Button btnAbort = findViewById(R.id.btnAbort);
+
+        facetsList = loadFacets(); // Загрузка граней
+
+        updateFacet();
+
+        btnAbort.setOnClickListener(v -> showAbortDialog());
+    }
+
+    private ArrayList<String[]> loadFacets() {
+        ArrayList<String[]> facets = new ArrayList<>();
+        facets.add(new String[]{"Герой", "Атлет", "Боец", "Тактик", "Воин", "Вождь", "Мистик"});
+        facets.add(new String[]{"Влияние", "Тело", "Закон", "Финансы", "Технология", "Коммуникация", "Информация"});
+        return facets;
+    }
+
+    private void updateFacet() {
+        if (currentFacet >= facetsCount) {
+            Intent intent = new Intent(this, TestResultsActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        String[] facetWords = facetsList.get(new Random().nextInt(facetsList.size()));
+        textFacet.setText(String.join(", ", facetWords));
+
+        progressBar.setProgress((currentFacet + 1) * 100 / facetsCount);
+        currentFacet++;
+    }
+
+    private void showAbortDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Прервать тест?")
+                .setMessage("Результаты прохождения теста будут утеряны.")
+                .setPositiveButton("Прервать", (dialog, which) -> finish())
+                .setNegativeButton("Отмена", null)
+                .show();
+    }
+}
+
+
+// File: piramida/app/src/main/java/su/panfilov/piramida/TestResultsActivity.java
+package su.panfilov.piramida;
+
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class TestResultsActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_test_results);
+    }
+}
+
+
+// File: piramida/app/src/main/res/drawable/bottom_navigation_item_background_colors.xml
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:color="@color/colorTabInactive"
+        android:state_checked="false"/>
+    <item
+        android:color="@color/colorTabActive"
+        android:state_checked="true"/>
+
+</selector>
+
+// File: piramida/app/src/main/res/drawable/ic_launcher_background.xml
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportHeight="108"
+    android:viewportWidth="108">
+    <path
+        android:fillColor="#26A69A"
+        android:pathData="M0,0h108v108h-108z" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M9,0L9,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,0L19,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M29,0L29,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M39,0L39,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M49,0L49,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M59,0L59,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M69,0L69,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M79,0L79,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M89,0L89,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M99,0L99,108"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,9L108,9"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,19L108,19"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,29L108,29"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,39L108,39"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,49L108,49"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,59L108,59"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,69L108,69"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,79L108,79"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,89L108,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M0,99L108,99"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,29L89,29"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,39L89,39"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,49L89,49"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,59L89,59"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,69L89,69"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M19,79L89,79"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M29,19L29,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M39,19L39,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M49,19L49,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M59,19L59,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M69,19L69,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M79,19L79,89"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="0.8" />
+</vector>
+
+
+// File: piramida/app/src/main/res/drawable/triangle.xml
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <scale
+            android:scaleGravity="center_vertical|center_horizontal"
+            android:scaleHeight="180%"
+            android:scaleWidth="80%">
+
+            <rotate
+                android:fromDegrees="45"
+                android:toDegrees="45"
+                android:pivotX="-40%"
+                android:pivotY="87%">
+                <shape
+                    android:shape="rectangle" >
+                    <stroke android:color="@android:color/transparent" android:width="10dp"/>
+                    <solid
+                        android:color="@android:color/white" />
+                </shape>
+            </rotate>
+        </scale>
+    </item>
+</selector>
+
+// File: piramida/app/src/main/res/drawable-v24/ic_launcher_foreground.xml
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportHeight="108"
+    android:viewportWidth="108">
+    <path
+        android:fillType="evenOdd"
+        android:pathData="M32,64C32,64 38.39,52.99 44.13,50.95C51.37,48.37 70.14,49.57 70.14,49.57L108.26,87.69L108,109.01L75.97,107.97L32,64Z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="78.5885"
+                android:endY="90.9159"
+                android:startX="48.7653"
+                android:startY="61.0927"
+                android:type="linear">
+                <item
+                    android:color="#44000000"
+                    android:offset="0.0" />
+                <item
+                    android:color="#00000000"
+                    android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillType="nonZero"
+        android:pathData="M66.94,46.02L66.94,46.02C72.44,50.07 76,56.61 76,64L32,64C32,56.61 35.56,50.11 40.98,46.06L36.18,41.19C35.45,40.45 35.45,39.3 36.18,38.56C36.91,37.81 38.05,37.81 38.78,38.56L44.25,44.05C47.18,42.57 50.48,41.71 54,41.71C57.48,41.71 60.78,42.57 63.68,44.05L69.11,38.56C69.84,37.81 70.98,37.81 71.71,38.56C72.44,39.3 72.44,40.45 71.71,41.19L66.94,46.02ZM62.94,56.92C64.08,56.92 65,56.01 65,54.88C65,53.76 64.08,52.85 62.94,52.85C61.8,52.85 60.88,53.76 60.88,54.88C60.88,56.01 61.8,56.92 62.94,56.92ZM45.06,56.92C46.2,56.92 47.13,56.01 47.13,54.88C47.13,53.76 46.2,52.85 45.06,52.85C43.92,52.85 43,53.76 43,54.88C43,56.01 43.92,56.92 45.06,56.92Z"
+        android:strokeColor="#00000000"
+        android:strokeWidth="1" />
+</vector>
+
+
+// File: piramida/app/src/main/res/drawable-xhdpi/launch_screen.xml
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/launch_screen_bg" />
+    </item>
+
+</layer-list>
+
+// File: piramida/app/src/main/res/layout/about_dialog.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/aboutCloseButton">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/aboutText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:clickable="true"
+                android:focusable="true"
+                android:linksClickable="true"
+                android:padding="20dp"
+                android:text="@string/help_about_text"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/aboutCloseButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@color/colorAccent"
+        android:text="@string/close"
+        android:textColor="@android:color/white"
+        android:layout_alignParentBottom="true" />
+</RelativeLayout>
+
+// File: piramida/app/src/main/res/layout/activity_about_test.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/aboutTestTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Тест"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="10dp"/>
+
+    <TextView
+        android:id="@+id/aboutTestText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingBottom="20dp"/>
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Назад"/>
+
+    <Button
+        android:id="@+id/btnMainScreen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="На основной экран"
+        android:layout_marginTop="10dp"/>
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/activity_main.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:id="@+id/rootLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bottom_navigation"
+        android:orientation="vertical"
+        android:animateLayoutChanges="false">
+
+    </FrameLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        app:itemBackground="@color/colorBarBG"
+        app:itemIconTint="@drawable/bottom_navigation_item_background_colors"
+        app:itemTextColor="@drawable/bottom_navigation_item_background_colors"
+        app:menu="@menu/menu_bottom_navigation" />
+
+</RelativeLayout>
+
+
+// File: piramida/app/src/main/res/layout/activity_test.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Экран теста"
+        android:textSize="20sp" />
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/activity_test_process.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/textFacet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Фрагмент теста"
+        android:textSize="18sp"/>
+
+    <Button
+        android:id="@+id/btnAbort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Прервать тест"/>
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/activity_test_results.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textResults"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Результаты теста"
+        android:textSize="20sp"/>
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/activity_test_setup.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/inputTheme"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Введите тему теста"/>
+
+    <Button
+        android:id="@+id/btnStartTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Начать тестирование"/>
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/contents_list_header.xml
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/contentsHeaderTitle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:textColor="#997AA4"
+    android:textSize="20sp"
+    android:textStyle="bold" >
+
+</TextView>
+
+
+// File: piramida/app/src/main/res/layout/contents_list_item.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="10dp">
+
+
+
+    <TextView
+        android:id="@+id/contentsItemTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="20sp"
+        android:paddingStart="10dp" />
+    <ImageView
+        android:id="@+id/contentsItemCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_checkbox_unchecked"
+        android:contentDescription="Checkbox" />
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/diary_list_item.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/diaryItemTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+
+    </TextView>
+
+    <ImageButton
+        android:id="@+id/viewDiaryButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="2dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:color/transparent"
+        android:paddingBottom="5dp"
+        android:paddingEnd="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="5dp"
+        app:srcCompat="@drawable/ic_pyramid_tab" />
+
+    <ImageButton
+        android:id="@+id/removeDiaryButton"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@android:color/transparent"
+        android:paddingBottom="5dp"
+        android:paddingEnd="15dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingStart="15dp"
+        android:paddingTop="5dp"
+        app:srcCompat="@android:drawable/ic_delete" />
+
+</LinearLayout>
+
+// File: piramida/app/src/main/res/layout/fragment_contents.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".ContentsFragment"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="@string/contents">
+
+        <SearchView
+            android:id="@+id/searchView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:queryHint="Search..."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <ImageView
+            android:id="@+id/filterImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/unlock_all_kutalog"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="Filter Checked Items" />
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/contentsListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/fragment_diary.xml
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".DiaryFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:minHeight="?attr/actionBarSize"
+            android:theme="?attr/actionBarTheme"
+            app:title="@string/diary" />
+
+            <ListView
+                android:id="@+id/diaryListView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/playLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:animateLayoutChanges="false" >
+
+    </FrameLayout>
+
+</RelativeLayout>
+
+
+// File: piramida/app/src/main/res/layout/fragment_help.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".HelpFragment"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="@string/help">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@android:color/white"
+            android:contentDescription="@string/help_about"
+            android:onClick="onAboutImageButtonClick"
+            android:padding="5dp"
+            android:src="@drawable/ic_copyrgt" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <ListView
+        android:id="@+id/helpListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/fragment_play.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PlayFragment">
+
+    <ImageView
+        android:id="@+id/bgPlayImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <su.panfilov.piramida.components.PyramidView
+        android:id="@+id/pyramidPlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="28dp"
+            android:background="@android:color/transparent"
+            android:onClick="backTapped"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_back_white" />
+
+        <ImageButton
+            android:id="@+id/playButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="20dp"
+            android:background="@android:color/transparent"
+            android:onClick="playTapped"
+            android:src="@drawable/play" />
+
+    </su.panfilov.piramida.components.PyramidView>
+
+</RelativeLayout>
+
+// File: piramida/app/src/main/res/layout/fragment_pyramid.xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PyramidFragment">
+
+    <ImageView
+        android:id="@+id/bgImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/app_name"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <su.panfilov.piramida.components.PyramidView
+        android:id="@+id/pyramid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <ImageButton
+            android:id="@+id/linkButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/transparent"
+            android:onClick="onLinkButtonClick"
+            android:src="@drawable/ic_link" />
+
+        <ImageButton
+            android:id="@+id/recordButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginTop="60dp"
+            android:background="@android:color/transparent"
+            android:onClick="recordTapped"
+            android:src="@drawable/done" />
+        <Button
+            android:id="@+id/save_active_items_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Сохранить активные"
+            android:visibility="gone"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="180dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"/>
+
+        <Button
+            android:id="@+id/doneButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="130dp"
+            android:background="@android:color/transparent"
+            android:onClick="doneTapped"
+            android:text="@string/ready"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+    </su.panfilov.piramida.components.PyramidView>
+
+</RelativeLayout>
+
+// File: piramida/app/src/main/res/layout/fragment_settings.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".SettingsFragment"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:title="@string/settings" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginRight="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@android:color/white"
+        android:contentDescription="@string/settings_about"
+        android:onClick="onAboutImageButtonClick"
+        android:padding="5dp" />
+
+    <!-- Settings Options ListView -->
+    <ListView
+        android:id="@+id/settingsTab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/fragment_test.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnDay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="День"/>
+
+    <Button
+        android:id="@+id/btnMonth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Месяц"/>
+
+    <Button
+        android:id="@+id/btnYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Год"/>
+
+    <Button
+        android:id="@+id/btnDecade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Десятилетие"/>
+
+    <Button
+        android:id="@+id/btnResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Результаты пройденных тестов"/>
+
+    <Button
+        android:id="@+id/btnAboutTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="О тесте"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>
+
+
+// File: piramida/app/src/main/res/layout/help_list_item.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/helpItemTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textColor="#997AA4"
+        android:textSize="20sp"
+        android:textStyle="bold" >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/helpItemSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textSize="20sp" >
+
+    </TextView>
+
+</LinearLayout>
+
+// File: piramida/app/src/main/res/layout/links_dialog.xml
+<?xml version="1.0" encoding="utf-8"?>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linksCloseButton"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/linksText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="web"
+            android:clickable="true"
+            android:focusable="true"
+            android:linksClickable="true"
+            android:padding="20dp"
+            android:text="@string/help_about_links_text"
+            android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/linksCloseButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@color/colorAccent"
+        android:text="@string/close"
+        android:textColor="@android:color/white" />
+</LinearLayout>
+
+// File: piramida/app/src/main/res/menu/menu_bottom_navigation.xml
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--    <item-->
+    <!--        android:id="@+id/diaryTab"-->
+    <!--        android:icon="@drawable/ic_diary_tab"-->
+    <!--        android:title="@string/diary"-->
+    <!--        app:showAsAction="ifRoom|withText" />-->
+    <item
+        android:id="@+id/pyramidTab"
+        android:icon="@drawable/ic_pyramid_tab"
+        android:title="@string/pyramid"
+        app:showAsAction="ifRoom|withText" />
+
+
+
+    <!-- Добавленный пункт меню для Теста -->
+    <item
+        android:id="@+id/testTab"
+        android:icon="@drawable/ic_test_tab"
+        android:title="@string/test"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/helpTab"
+        android:icon="@drawable/ic_help_tab"
+        android:title="@string/help"
+        app:showAsAction="ifRoom|withText" />
+
+    <item
+        android:id="@+id/contentsTab"
+        android:icon="@drawable/ic_contents_tab"
+        android:title="@string/contents"
+        app:showAsAction="withText" />
+    <!-- Добавленный пункт меню для Настроек -->
+    <item
+        android:id="@+id/settingsTab"
+        android:icon="@drawable/ic_settings_tab"
+        android:title="@string/settings"
+        app:showAsAction="ifRoom|withText" />
+</menu>
+
+// File: piramida/app/src/main/res/values/attrs.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PyramidView">
+    </declare-styleable>
+
+    <declare-styleable name="SwipeView">
+        <attr name="deltaWidth" format="float" />
+        <attr name="layer" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="SwipeViewBackground">
+        <attr name="bgDeltaWidth" format="float" />
+        <attr name="bgNumberOfLayer" format="integer" />
+    </declare-styleable>
+</resources>
+
+// File: piramida/app/src/main/res/values/colors.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#997aa4</color>
+
+    <color name="colorTabActive">#997AA4</color>
+    <color name="colorTabInactive">#999999</color>
+    <color name="colorBarBG">#eeeeee</color>
+    <color name="colorBarText">#5A6A7A</color>
+</resources>
+
+
+// File: piramida/app/src/main/res/values/id.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="pyramidTab" type="id"/>
+    <item name="testTab" type="id"/>
+    <item name="helpTab" type="id"/>
+    <item name="contentsTab" type="id"/>
+    <item name="settingsTab" type="id"/>
+</resources>
+   
+
+
+// File: piramida/app/src/main/res/values/strings.xml
+<resources>
+    <string name="app_name">Пирамида развития</string>
+    <string name="pyramid">Пирамида</string>
+    <string name="diary">Дневник</string>
+    <string name="help">Справка</string>
+    <string name="contents">Каталог</string>
+    <string name="delete">Удалить</string>
+    <string name="save">Сохранить</string>
+    <string name="saving">Сохранение рассуждений</string>
+    <string name="new_record">Новая запись</string>
+    <string name="test">Тест</string>
+
+    <string name="notifications">Notifications</string>
+    <string name="theme">Theme</string>
+    <string name="language">Language</string>
+    <string name="settings_about">About</string>
+    <string name="settings">Настройки</string>
+    <string-array name="help_titles">
+        <item>Свайп</item>
+        <item>Долгое нажатие</item>
+        <item>Нажатие на верхушку</item>
+    </string-array>
+    <string-array name="help_subtitles">
+        <item>Вращение слоя</item>
+        <item>Построение пирамиды по грани</item>
+        <item>Блокировка пирамиды для прокрутки сразу всех слоев</item>
+    </string-array>
+
+    <string name="contents_item_1">Оглавление</string>
+    <string name="help_about">Об авторе</string>
+    <string name="close">Закрыть</string>
+    <string name="help_about_text">Павел Пискарев. Ph.D Психолог. Коуч. Архитектор развития.
+        Председатель правления Международной Ассоциации Аналитического Коучинга, ректор Института
+        психологии творчества». Член-корреспондент МАПН.\n\n
+        Автор концептов «Drive», «Восхождение Героя», автор методов «Нейрографика» и
+        «Пирамида развития», автор уникальных образовательных программ и социальных проектов.
+        Опыт профессиональной реализации с 1987 г.\n\n
+        <b>Сайт:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n
+        <b>Теория:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n
+        <b>Видео:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n
+        <b>Обучение:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+    </string>
+    <string name="help_about_links">Ссылки</string>
+    <string name="help_about_links_text">
+        <b>Сайт:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n<b>Теория:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n<b>Видео:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n<b>Обучение:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+    </string>
+    <string name="ready">Готово</string>
+</resources>
+
+
+// File: piramida/app/src/main/res/values/styles.xml
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">@color/colorBarBG</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+</resources>
+
+
+// File: piramida/app/src/main/res/values-de/strings.xml
+<resources>
+    <string name="app_name">Entwicklungspyramide</string>
+    <string name="pyramid">Pyramide</string>
+    <string name="diary">Tagebuch</string>
+    <string name="help">Auskunft</string>
+    <string name="contents">Inhaltsverzeichnis</string>
+    <string name="delete">Löschen</string>
+    <string name="save">Speichern</string>
+    <string name="saving">Überlegungen speichern</string>
+    <string name="new_record">Neue Notiz</string>
+
+    <string-array name="help_titles">
+        <item>Wischen</item>
+        <item>Langes Drücken</item>
+        <item>Tippen auf Pyramiden-Spitze</item>
+    </string-array>
+    <string-array name="help_subtitles">
+        <item>Eben drehen</item>
+        <item>Aufbau der Pyramiden-Seite</item>
+        <item>Sperren der Pyramide, um durch alle Ebenen auf einmal zu blättern</item>
+    </string-array>
+
+    <string name="contents_item_1">Inhaltsverzeichnis</string>
+    <string name="help_about">Über den Autor</string>
+    <string name="close">Schliessen</string>
+    <string name="help_about_text">Pavel Piskarev. Ph. Dr. Psychologe. Coach. Entwicklungsarchitekt.
+        Vorsitzender des Vorstands der Internationalen Vereinigung für analytisches Coaching,
+        Rektor des Instituts für Kreativitätspsychologie. Korrespondierendes Mitglied von MAPN.\n\n
+        Autor der Konzepte "Drive", "Aufstieg des Helden", Autor der Methoden "NeuroGraphik" und
+        "Entwicklungspyramide", Autor einzigartiger Bildungsprogramme und Sozialprojekte.
+        Professionelle Umsetzungserfahrung seit 1987.\n\n
+        <b>Webseite:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n
+        <b>Theorie:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n
+        <b>Video:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n
+        <b>Schulung:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+    </string>
+    <string name="help_about_links">Links</string>
+    <string name="help_about_links_text">
+        <b>Webseite:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n<b>Theorie:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n<b>Video:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n<b>Schulung:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+    </string>
+    <string name="ready">Fertig</string>
+</resources>
+
+
+// File: piramida/app/src/test/java/su/panfilov/piramida/ExampleUnitTest.java
+package su.panfilov.piramida;
+
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+/**
+ * Example local unit test, which will execute on the development machine (host).
+ *
+ * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
+ */
+public class ExampleUnitTest {
+    @Test
+    public void addition_isCorrect() {
+        assertEquals(4, 2 + 2);
+    }
+}
+
+// File: piramida/README.md
+
+

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnDay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="День"/>
+
+    <Button
+        android:id="@+id/btnMonth"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Месяц"/>
+
+    <Button
+        android:id="@+id/btnYear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Год"/>
+
+    <Button
+        android:id="@+id/btnDecade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Десятилетие"/>
+
+    <Button
+        android:id="@+id/btnResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Результаты пройденных тестов"/>
+
+    <Button
+        android:id="@+id/btnAboutTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="О тесте"
+        android:layout_marginTop="10dp"/>
+
+</LinearLayout>

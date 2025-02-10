@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
         if (itemId == R.id.pyramidTab) {
             frag = PyramidFragment.newInstance();
         } else if (itemId == R.id.testTab) {
-            frag = HelpFragment.newInstance();
+            frag = TestFragment.newInstance();
         } else if (itemId == R.id.helpTab) {
             frag = HelpFragment.newInstance();
         } else if (itemId == R.id.contentsTab) {

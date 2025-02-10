@@ -1,32 +1,25 @@
 package su.panfilov.piramida.components;
 
 import android.content.Context;
-import android.graphics.Point;
-import androidx.fragment.app.Fragment;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import su.panfilov.piramida.HelpFragment;
 import su.panfilov.piramida.R;
 import su.panfilov.piramida.models.HelpItem;
 
 public class HelpAdapter extends BaseAdapter {
 
-    private Fragment fragment;
-    public ArrayList<HelpItem> data;
+    private Context context;
+    private ArrayList<HelpItem> data;
 
-    public HelpAdapter(HelpFragment f, ArrayList<HelpItem> d) {
-        fragment = f;
-        data = d;
+    public HelpAdapter(Context context, ArrayList<HelpItem> data) {
+        this.context = context;
+        this.data = data;
     }
 
     @Override
@@ -36,7 +29,7 @@ public class HelpAdapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return position;
+        return data.get(position);
     }
 
     @Override
@@ -46,19 +39,15 @@ public class HelpAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        HelpItemHolder holder = null;
-
+        ViewHolder holder;
         if (convertView == null) {
-            LayoutInflater inflater = fragment.getLayoutInflater();
-            convertView = inflater.inflate(R.layout.help_list_item, parent, false);
-
-            holder = new HelpItemHolder();
+            convertView = LayoutInflater.from(context).inflate(R.layout.help_list_item, parent, false);
+            holder = new ViewHolder();
             holder.title = convertView.findViewById(R.id.helpItemTitle);
             holder.subtitle = convertView.findViewById(R.id.helpItemSubtitle);
-
             convertView.setTag(holder);
         } else {
-            holder = (HelpItemHolder) convertView.getTag();
+            holder = (ViewHolder) convertView.getTag();
         }
 
         HelpItem helpItem = data.get(position);
@@ -66,11 +55,24 @@ public class HelpAdapter extends BaseAdapter {
         holder.title.setText(helpItem.title);
         holder.subtitle.setText(helpItem.subtitle);
 
+        // Если нет подзаголовка, оставляем цветной заголовок
+        if (helpItem.subtitle.isEmpty()) {
+            holder.title.setTextColor(context.getResources().getColor(R.color.colorPrimary));
+            holder.title.setTextSize(18);
+            holder.subtitle.setVisibility(View.GONE);
+        } else {
+            // Подзаголовки (описания действий) делаем черными
+            holder.title.setTextColor(context.getResources().getColor(android.R.color.black));
+            holder.title.setTextSize(16);
+            holder.subtitle.setTextColor(context.getResources().getColor(android.R.color.black));
+            holder.subtitle.setVisibility(View.VISIBLE);
+        }
+
         return convertView;
     }
 
-    static class HelpItemHolder {
-        public TextView title;
-        public TextView subtitle;
+    static class ViewHolder {
+        TextView title;
+        TextView subtitle;
     }
 }
