@@ -1,45 +1,32 @@
 package su.panfilov.piramida.components;
 
-import android.animation.ValueAnimator;
+import android.animation.Animator;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
-import androidx.annotation.Dimension;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.DragEvent;
-import android.view.GestureDetector;
-import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import su.panfilov.piramida.R;
 
 import static android.graphics.Typeface.DEFAULT_BOLD;
 
-public class SwipeView extends RelativeLayout {
+public class SwipeView extends ViewGroup {
     private static final String TAG = "SwipeView";
 
     final MediaPlayer mp;
 
     private Context context;
-    private Paint paint;
-
+    private boolean isTriangle = true; // Flag to track the current shape
     private float deltaWidth;
     private int numberOfLayer;
 
@@ -108,7 +95,7 @@ public class SwipeView extends RelativeLayout {
             String text = label.getText().toString();
             text = text.substring(0, text.length() / 2) + "\n" + text.substring(text.length() / 2);
             label.setText(text);
-            label.setTextSize(Dimension.SP, height / 8);
+            label.setTextSize(height / 8);
             label.measure(0, 0);
             labelWidth = label.getMeasuredWidth();
             labelHeight = label.getMeasuredHeight();
@@ -133,10 +120,9 @@ public class SwipeView extends RelativeLayout {
         label.setTextColor(numberOfLayer == 0 ? PyramidColors.textColor() : Color.WHITE);
         label.setText("");
         label.setPaintFlags(Paint.FAKE_BOLD_TEXT_FLAG);
-        label.setTextSize(Dimension.SP, Math.round(height / 6.0));
+        label.setTextSize(height / 8);
         label.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-        Typeface fontTypeFace = Typeface.create(DEFAULT_BOLD, Typeface.BOLD);
-        label.setTypeface(fontTypeFace);
+        label.setTypeface(Typeface.create(DEFAULT_BOLD, Typeface.BOLD));
         addView(label);
 
         setOnLongClickListener(new OnLongClickListener() {
@@ -178,7 +164,7 @@ public class SwipeView extends RelativeLayout {
             polygon.setVisibility(text.equals("") ? VISIBLE : INVISIBLE);
         }
         label.setText(text);
-        label.setTextSize(Dimension.SP, Math.round(height / 6.0));
+        label.setTextSize(height / 8);
     }
 
     public void update() {
@@ -241,65 +227,30 @@ public class SwipeView extends RelativeLayout {
         float coeff = width / realWidth;
         Log.d(TAG, "cubeTransition: hide " + coeff);
 
-        ScaleAnimation scaleAnimation = new ScaleAnimation(1.0f, 0.0f, 1.0f, 1.0f);
-        scaleAnimation.setDuration(200);
+        // Determine the target view (polygon or label)
+        final View targetView = label.getText().equals("") ? polygon : label;
 
-        TranslateAnimation translateAnimation = new TranslateAnimation(0, (toRight ? 0.5f + 0.2f * coeff : -0.2f * coeff) * (width - deltaWidth), 0, 0);
-        translateAnimation.setDuration(300);
+        // Hide animation
+        targetView.animate()
+                .scaleX(0.0f) // Scale down to 0
+                .translationX((toRight ? 0.5f + 0.2f * coeff : -0.2f * coeff) * (width - deltaWidth)) // Translate X
+                .setDuration(300) // Duration
+                .withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        setText(text); // Update text
 
-        AnimationSet animationHide = new AnimationSet(true);
-        animationHide.addAnimation(scaleAnimation);
-        animationHide.addAnimation(translateAnimation);
+                        // Determine the new target view (polygon or label)
+                        final View newTargetView = text.equals("") ? polygon : label;
 
-        animationHide.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                setText(text);
-                float realWidth = width;
-                if (text.equals("")) {
-                    if (polygon != null) {
-                        realWidth = polygon.getWidth();
+                        // Show animation
+                        newTargetView.animate()
+                                .scaleX(1.0f) // Scale back to 1
+                                .translationX(0) // Reset translation
+                                .setDuration(300) // Duration
+                                .start();
                     }
-                } else {
-                    realWidth = label.getWidth() == 0 ? width : label.getWidth();
-                }
-                float coeff = width / realWidth;
-                Log.d(TAG, "cubeTransition: show " + coeff);
-
-                ScaleAnimation scaleAnimation = new ScaleAnimation(0.0f, 1.0f, 1.0f, 1.0f);
-                scaleAnimation.setDuration(300);
-
-                TranslateAnimation translateAnimation = new TranslateAnimation((toRight ? -0.2f * coeff : 0.5f + 0.2f * coeff) * (width - deltaWidth), 0, 0, 0);
-                translateAnimation.setDuration(200);
-
-                AnimationSet animationShow = new AnimationSet(true);
-                animationShow.addAnimation(scaleAnimation);
-                animationShow.addAnimation(translateAnimation);
-                if (text.equals("")) {
-                    if (polygon != null) {
-                        polygon.startAnimation(animationShow);
-                    }
-                } else {
-                    label.startAnimation(animationShow);
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        if (label.getText().equals("")) {
-            if (polygon != null) {
-                polygon.startAnimation(animationHide);
-            }
-        } else {
-            label.startAnimation(animationHide);
-        }
+                })
+                .start();
     }
 }

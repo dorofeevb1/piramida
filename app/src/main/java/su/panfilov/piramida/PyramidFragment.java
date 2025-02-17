@@ -1,16 +1,9 @@
 package su.panfilov.piramida;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 
-import java.util.Date;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import su.panfilov.piramida.components.PyramidView;
 import su.panfilov.piramida.models.Diary;
-import su.panfilov.piramida.models.SaveTranslation;
 
 public class PyramidFragment extends Fragment {
 
@@ -34,8 +27,10 @@ public class PyramidFragment extends Fragment {
     private boolean savingOn = false; // Флаг записи
 
     public PyramidView piramidaView;
-    public ImageButton recordButton;
-    public Button doneButton;
+    public ImageButton toggleShapeButton; // Изменено на ImageButton
+    public ImageButton toggleFavoritesButton; // Изменено на ImageButton
+    public ImageButton likeButton;
+    public ImageButton linkButton;
 
     private Diary diary;
 
@@ -55,10 +50,20 @@ public class PyramidFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_pyramid, container, false);
 
         piramidaView = rootView.findViewById(R.id.pyramid);
-        recordButton = rootView.findViewById(R.id.recordButton);
-        doneButton = rootView.findViewById(R.id.doneButton);
+        toggleShapeButton = rootView.findViewById(R.id.toggleShapeButton);
+        toggleFavoritesButton = rootView.findViewById(R.id.toggleFavoritesButton);
+        likeButton = rootView.findViewById(R.id.likeButton);
+        linkButton = rootView.findViewById(R.id.linkButton);
+
         setSavingOn(false);
-        doneButton.setVisibility(View.INVISIBLE);
+
+        // Устанавливаем обработчик нажатия на кнопку переключения формы
+        toggleShapeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleShape(v);
+            }
+        });
 
         return rootView;
     }
@@ -66,15 +71,6 @@ public class PyramidFragment extends Fragment {
     public void setSavingOn(boolean savingOn) {
         this.savingOn = savingOn;
         piramidaView.savingOn = savingOn;
-        if (savingOn) {
-            // Нажата кнопка записи
-            recordButton.setImageDrawable(requireContext().getDrawable(R.drawable.stop));
-            doneButton.setVisibility(View.INVISIBLE);
-        } else {
-            // Нажата кнопка стоп
-            recordButton.setImageDrawable(requireContext().getDrawable(R.drawable.done));
-            doneButton.setVisibility(View.INVISIBLE);
-        }
     }
 
     public boolean getSavingOn() {
@@ -90,60 +86,26 @@ public class PyramidFragment extends Fragment {
         return diary;
     }
 
-    public void recordTapped(View view) {
-        setSavingOn(!savingOn);
-
-        Log.d(TAG, "recordTapped: " + getSavingOn());
-
-        if (savingOn) {
-            if (newRecord) {
-                // Добавить новую запись
-                setDiary(new Diary());
-                diary.title = "Новая запись";
-                diary.timeStamp = new Date();
-                diary.numberOfPiramida = SaveTranslation.numberOfPiramidas;
-
-                diary.saveState(requireContext().getApplicationContext());
-
-                newRecord = false;
-            }
-
-            piramidaView.saveTranslation.startSaving(piramidaView.piramidaDataSource.sideByLayer, piramidaView.piramidaIsLocked);
-        } else {
-            piramidaView.saveTranslation.stopSaving();
-        }
+    public void toggleShape(View view) {
+//        // Логика переключения между Прямоугольником и Треугольником
+//        if (piramidaView != null) {
+//            piramidaView.toggleShape();
+//
+//            // Обновление иконки кнопки
+//            if (piramidaView.isTriangle()) {
+//                toggleShapeButton.setImageResource(R.drawable.square); // Иконка для квадрата
+//            } else {
+//                toggleShapeButton.setImageResource(R.drawable.triangle); // Иконка для треугольника
+//            }
+//        }
     }
 
-    public void doneTapped(View view) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle(getString(R.string.saving));
+    public void toggleFavorites(View view) {
+        // Логика включения/выключения режима Избранное/Все грани
+    }
 
-        final EditText input = new EditText(requireContext());
-        input.setText(getString(R.string.new_record));
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
-
-        builder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                newRecord = true;
-                diary.title = input.getText().toString();
-                diary.saveState(requireContext().getApplicationContext());
-                diary = null;
-            }
-        });
-        builder.setNegativeButton(getString(R.string.delete), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                newRecord = true;
-                diary.delete(requireContext().getApplicationContext());
-                setDiary(null);
-                dialog.cancel();
-            }
-        });
-
-        builder.show();
-        doneButton.setVisibility(View.INVISIBLE);
+    public void likeTapped(View view) {
+        // Логика для кнопки "Лайк"
     }
 
     @Override

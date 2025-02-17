@@ -4,17 +4,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
-
-import com.google.android.material.bottomnavigation.BottomNavigationItemView;
-import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -24,7 +16,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import java.lang.reflect.Field;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import su.panfilov.piramida.components.BottomNavigationViewHelper;
 import su.panfilov.piramida.models.Diary;
@@ -108,24 +100,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    public void recordTapped(View view) {
-        try {
-            PyramidFragment pyramidFragment = (PyramidFragment) frag;
-            pyramidFragment.recordTapped(view);
-        } catch (NullPointerException e) {
-            // Handle exception
-        }
-    }
-
-    public void doneTapped(View view) {
-        try {
-            PyramidFragment pyramidFragment = (PyramidFragment) frag;
-            pyramidFragment.doneTapped(view);
-        } catch (NullPointerException e) {
-            // Handle exception
-        }
-    }
-
     private void selectFragment(MenuItem item) {
         if (frag != null) {
             FragmentTransaction ftremove = getSupportFragmentManager().beginTransaction();
@@ -158,7 +132,4 @@ public class MainActivity extends AppCompatActivity {
             ft.commit();
         }
     }
-
-
-
 }
