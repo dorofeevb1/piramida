@@ -1,7 +1,6 @@
 package su.panfilov.piramida.components;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -26,7 +25,6 @@ public class PyramidView extends RelativeLayout {
 
     private float coeficentOfHead = 0.185f;
     private float horizontalMarginInPercent = 8;
-
     private float topMarginInPercent = 8;
     private float bottomMarginInPercent = 8;
 
@@ -61,9 +59,10 @@ public class PyramidView extends RelativeLayout {
 
     public boolean userInteractive = true;
 
+    private boolean isTriangle = true; // Declare the isTriangle variable
+
     public PyramidView(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         this.context = context;
         saveTranslation = new SaveTranslation(context);
         final MediaPlayer mp = MediaPlayer.create(this.context, R.raw.sound_shelk);
@@ -72,12 +71,21 @@ public class PyramidView extends RelativeLayout {
 
     public PyramidView(Context context) {
         super(context);
-
         this.context = context;
         saveTranslation = new SaveTranslation(context);
-
         final MediaPlayer mp = MediaPlayer.create(this.context, R.raw.sound_shelk);
         mp.start();
+    }
+
+    public void toggleShape() {
+        isTriangle = !isTriangle; // Toggle the shape state
+        triangleView.setIsTriangle(isTriangle); // Update the TriangleView
+        requestLayout(); // Request layout update
+        invalidate(); // Redraw the view with the new shape
+    }
+
+    public boolean isTriangle() {
+        return isTriangle; // Return the current shape state
     }
 
     @Override
@@ -94,7 +102,6 @@ public class PyramidView extends RelativeLayout {
     }
 
     protected void init() {
-
         if (layersCreated) {
             return;
         }
@@ -198,10 +205,6 @@ public class PyramidView extends RelativeLayout {
                 String[] frontSide = piramidaDataSource.allLeftTurn();
 
                 for (int tag = 1000; tag <= 1007; tag++) {
-//                    if (tag == layer + 1000) {
-//                        continue;
-//                    }
-
                     layerViews.get(tag - 1000).turnLeft(piramidaDataSource.getTitle(tag - 1000));
                 }
 
@@ -223,12 +226,7 @@ public class PyramidView extends RelativeLayout {
                 String[] frontSide = piramidaDataSource.allRightTurn();
 
                 for (int tag = 1000; tag <= 1007; tag++) {
-//                    if (tag == layer + 1000) {
-//                        continue;
-//                    }
-
                     layerViews.get(tag - 1000).turnRight(piramidaDataSource.getTitle(tag - 1000));
-
                 }
 
                 if (savingOn) {
@@ -254,7 +252,6 @@ public class PyramidView extends RelativeLayout {
 
             for (int tag = 1000; tag <= 1007; tag++) {
                 if (tag == byLayer + 1000) {
-                    // Можно сделать анимацию увеличения-уменьшения масштабирования
                     layerViews.get(tag - 1000).playSwipe();
                     continue;
                 }
