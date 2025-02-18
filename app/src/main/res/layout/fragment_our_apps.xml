@@ -5,61 +5,60 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Наши приложения"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:paddingBottom="16dp"/>
-
     <Button
         android:id="@+id/backButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Назад"
-        android:layout_gravity="start"/>
+        android:text="Назад" />
 
-    <ScrollView
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:text="Наши приложения"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+    <ImageView
+        android:id="@+id/neuroCafeAndroid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_bogoban"
+        android:layout_marginBottom="8dp"/>
 
-            <ImageView
-                android:id="@+id/bannerNeiroCafe"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/banner_neiro_cafe"
-                android:contentDescription="НейроКафе"
-                android:padding="8dp"
-                android:clickable="true"
-                android:focusable="true"/>
+    <ImageView
+        android:id="@+id/neuroCafeIOS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_neiro_cafe"
+        android:layout_marginBottom="8dp"/>
 
-            <ImageView
-                android:id="@+id/bannerMetaModern"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/banner_meta_modern"
-                android:contentDescription="MetaModern"
-                android:padding="8dp"
-                android:clickable="true"
-                android:focusable="true"/>
+    <ImageView
+        android:id="@+id/metaModernAndroid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_meta_modern"
+        android:layout_marginBottom="8dp"/>
 
-            <ImageView
-                android:id="@+id/bannerBogoban"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/banner_bogoban"
-                android:contentDescription="БоГобан"
-                android:padding="8dp"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
-    </ScrollView>
+    <ImageView
+        android:id="@+id/metaModernIOS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_meta_modern"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/boGobanAndroid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_neiro_cafe"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/boGobanIOS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_bogoban"
+        android:layout_marginBottom="8dp"/>
 </LinearLayout>
