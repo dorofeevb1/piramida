@@ -58,6 +58,12 @@ public class PyramidFragment extends Fragment {
         toggleFavoritesButton = rootView.findViewById(R.id.toggleFavoritesButton);
         likeButton = rootView.findViewById(R.id.likeButton);
         linkButton = rootView.findViewById(R.id.linkButton);
+        linkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openInfoScreen();
+            }
+        });
         apButton = rootView.findViewById(R.id.apButton);
         wealthOrdersContainer = rootView.findViewById(R.id.wealthOrdersContainer);
 
@@ -79,7 +85,18 @@ public class PyramidFragment extends Fragment {
 
         return rootView;
     }
+    private void openInfoScreen() {
+        // Создаем новый фрагмент
+        InfoFragment infoFragment = new InfoFragment();
 
+        // Заменяем текущий фрагмент на новый
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, infoFragment) // Замените на ваш контейнер для фрагментов
+                    .addToBackStack(null) // Добавляем в стек, чтобы можно было вернуться назад
+                    .commit();
+        }
+    }
     public void setSavingOn(boolean savingOn) {
         this.savingOn = savingOn;
         pyramidView.savingOn = savingOn;

@@ -43,22 +43,14 @@ public class SettingsFragment extends Fragment {
     private void initListView(View rootView) {
         // Create a list of settings options
         List<String> settingsOptions = new ArrayList<>();
-        settingsOptions.add("Notifications");
-        settingsOptions.add("Theme");
-        settingsOptions.add("Language");
-        settingsOptions.add("Privacy Policy");
-        settingsOptions.add("About");
+        settingsOptions.add("Включение/Выключение звука");
 
         // Get the ListView from the layout
         ListView settingsListView = rootView.findViewById(R.id.settingsTab);
 
         if (settingsListView != null) {
-            // Create an ArrayAdapter to populate the ListView
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                    requireContext(), // Context
-                    android.R.layout.simple_list_item_1, // Layout for each item
-                    settingsOptions // Data
-            );
+            // Create a custom adapter to populate the ListView
+            SettingsAdapter adapter = new SettingsAdapter(requireContext(), settingsOptions);
 
             // Set the adapter to the ListView
             settingsListView.setAdapter(adapter);
@@ -68,21 +60,10 @@ public class SettingsFragment extends Fragment {
                 String selectedItem = settingsOptions.get(position);
                 // Handle item click based on the selected item
                 switch (selectedItem) {
-                    case "Notifications":
-                        // Open notifications settings
+                    case "Включение/Выключение звука":
+                        // Handle the sound toggle option
                         break;
-                    case "Theme":
-                        // Open theme settings
-                        break;
-                    case "Language":
-                        // Open language settings
-                        break;
-                    case "Privacy Policy":
-                        // Open privacy policy
-                        break;
-                    case "About":
-                        // Open about section
-                        break;
+                    // Add more cases as needed
                 }
             });
         } else {
@@ -90,4 +71,5 @@ public class SettingsFragment extends Fragment {
             Log.e("SettingsFragment", "ListView is null");
         }
     }
+
 }

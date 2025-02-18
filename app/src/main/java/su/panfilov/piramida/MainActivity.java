@@ -44,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
             selectFragment(item);
             return true;
         });
+        // Обработчик для кнопки setupLinkButton
+        Button setupLinkButton = findViewById(R.id.setupLinkButton);
+        if (setupLinkButton != null) {
+            setupLinkButton.setOnClickListener(v -> openOurAppsFragment());
+        }
+
 
         MenuItem selectedItem;
         if (savedInstanceState != null) {
@@ -54,7 +60,13 @@ public class MainActivity extends AppCompatActivity {
         }
         selectFragment(selectedItem);
     }
-
+    private void openOurAppsFragment() {
+        OurAppsFragment ourAppsFragment = OurAppsFragment.newInstance();
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.rootLayout, ourAppsFragment); // Замените rootLayout на ваш контейнер для фрагментов
+        transaction.addToBackStack(null); // Добавляем в стек, чтобы можно было вернуться назад
+        transaction.commit();
+    }
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(SELECTED_ITEM, mSelectedItem);
@@ -87,18 +99,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onLinkButtonClick(View view) {
-        final Dialog dialog = new Dialog(MainActivity.this);
-        dialog.setContentView(R.layout.links_dialog);
-        dialog.setTitle(R.string.help_about_links);
+        // Create an instance of OurAppsFragment
+        OurAppsFragment ourAppsFragment = OurAppsFragment.newInstance();
 
-        // set the custom dialog components - text, image and button
-        Button closeButton = dialog.findViewById(R.id.linksCloseButton);
-        closeButton.setOnClickListener(v -> dialog.dismiss());
-
-        TextView aboutText = dialog.findViewById(R.id.linksText);
-
-        dialog.show();
+        // Begin the fragment transaction
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.rootLayout, ourAppsFragment);
+        ft.addToBackStack(null); // Optional: Add to back stack if you want to allow the user to navigate back
+        ft.commit();
     }
+
 
     private void selectFragment(MenuItem item) {
         if (frag != null) {
