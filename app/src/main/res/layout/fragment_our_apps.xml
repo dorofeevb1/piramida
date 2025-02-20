@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Назад" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Наши приложения"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <ImageView
+        android:id="@+id/neuroCafeAndroid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_bogoban"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/neuroCafeIOS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_neiro_cafe"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/metaModernAndroid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_meta_modern"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/metaModernIOS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_meta_modern"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/boGobanAndroid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_neiro_cafe"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/boGobanIOS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/banner_bogoban"
+        android:layout_marginBottom="8dp"/>
+</LinearLayout>

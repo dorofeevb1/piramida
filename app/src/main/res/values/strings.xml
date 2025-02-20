@@ -15,6 +15,8 @@
     <string name="language">Language</string>
     <string name="settings_about">About</string>
     <string name="settings">Настройки</string>
+    <string name="icon_description">Icon description</string>
+    <string name="setting_option">Setting Option</string>
     <string-array name="help_titles">
         <item>Свайп</item>
         <item>Долгое нажатие</item>
@@ -29,16 +31,18 @@
     <string name="contents_item_1">Оглавление</string>
     <string name="help_about">Об авторе</string>
     <string name="close">Закрыть</string>
-    <string name="help_about_text">Павел Пискарев. Ph.D Психолог. Коуч. Архитектор развития.
-        Председатель правления Международной Ассоциации Аналитического Коучинга, ректор Института
-        психологии творчества». Член-корреспондент МАПН.\n\n
-        Автор концептов «Drive», «Восхождение Героя», автор методов «Нейрографика» и
-        «Пирамида развития», автор уникальных образовательных программ и социальных проектов.
-        Опыт профессиональной реализации с 1987 г.\n\n
+    <string name="help_about_text">Павел Пискарёв. Ph.D Психолог. Коуч. Архитектор развития. Председатель правления Международной Ассоциации Аналитического Коучинга, ректор Института психологии творчества. Член-корреспондент МАПН.
+
+Автор концептов «Drive», «Восхождение героя», автор методов «НейроГрафика»  и «Пирамида развития»,  автор уникальных образовательных программ и социальных проектов. Опыт профессиональной реализации с 1987 г.
+\n\n
         <b>Сайт:</b> <a href="http://piskarev.ru">piskarev.ru</a>\n\n
-        <b>Теория:</b> <a href="http://ipyramid.ru/theory">ipyramid.ru/theory</a>\n
-        <b>Видео:</b> <a href="http://ipyramid.ru/video">ipyramid.ru/video</a>\n
-        <b>Обучение:</b> <a href="http://ipyramid.ru/education">ipyramid.ru/education</a>\n
+        <b>Основной сайт Института:</b> <a href="https://neurographica.metamodern.ru/">neurographica.metamodern.ru</a>\n
+        <b>Календарь событий:</b> <a href="https://calendar.metamodern.ru/">calendar.metamodern.ru</a>\n
+        <b>Сайт Пирамида Мышления:</b> <a href="https://ipyramid.metamodern.ru/">ipyramid.metamodern.ru</a>\n
+        <b>Наши каналы:</b> <a href="education.neurograff.com/chtm/ screens~navigate">education.neurograff.com/chtm/ screens~navigate</a>\n
+
+
+
     </string>
     <string name="help_about_links">Ссылки</string>
     <string name="help_about_links_text">

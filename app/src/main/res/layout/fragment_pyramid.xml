@@ -6,78 +6,158 @@
     android:layout_height="match_parent"
     tools:context=".PyramidFragment">
 
+    <!-- Фоновое изображение -->
     <ImageView
         android:id="@+id/bgImageView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/app_name"
         android:scaleType="fitXY"
-        android:src="@drawable/bg"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:src="@drawable/bg" />
 
+    <!-- Кнопка AP*10 в левом верхнем углу -->
+    <ImageButton
+        android:id="@+id/apButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ap_10" />
+
+    <!-- Пирамида -->
     <su.panfilov.piramida.components.PyramidView
         android:id="@+id/pyramid"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent" />
 
+    <!-- Контейнер для кнопок справа сверху -->
+    <LinearLayout
+        android:id="@+id/buttonsContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp">
+
+        <!-- Кнопка "Информация" -->
         <ImageButton
             android:id="@+id/linkButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
             android:onClick="onLinkButtonClick"
-            android:src="@drawable/ic_link" />
+            android:src="@drawable/info_piramida"
+            android:layout_marginBottom="16dp" />
 
+        <!-- Кнопка "Переключить форму" -->
         <ImageButton
-            android:id="@+id/recordButton"
+            android:id="@+id/toggleShapeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginTop="60dp"
             android:background="@android:color/transparent"
-            android:onClick="recordTapped"
-            android:src="@drawable/done" />
-        <Button
-            android:id="@+id/save_active_items_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Сохранить активные"
-            android:visibility="gone"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="180dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"/>
+            android:onClick="toggleShape"
+            android:src="@drawable/square"
+            android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/doneButton"
+        <!-- Кнопка "Избранное" -->
+        <ImageButton
+            android:id="@+id/toggleFavoritesButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentStart="false"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="130dp"
             android:background="@android:color/transparent"
-            android:onClick="doneTapped"
-            android:text="@string/ready"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white"
-            android:textSize="15sp"
-            android:textStyle="bold" />
-    </su.panfilov.piramida.components.PyramidView>
+            android:onClick="toggleFavorites"
+            android:src="@drawable/favorites"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Кнопка "Лайк" -->
+        <ImageButton
+            android:id="@+id/likeButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:onClick="likeTapped"
+            android:src="@drawable/ic_like" />
+    </LinearLayout>
+
+    <!-- Контейнер для отображения порядков богатства или времени -->
+    <LinearLayout
+        android:id="@+id/wealthOrdersContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pyramid"
+        android:layout_centerHorizontal="true"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:background="@android:color/white"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/wealthOrder1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1000 000 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/wealthOrder2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1 000 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/wealthOrder3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/wealthOrder4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/wealthOrder5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/wealthOrder6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="100"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/wealthOrder7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="10"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:layout_gravity="left" />
+    </LinearLayout>
 
 </RelativeLayout>
