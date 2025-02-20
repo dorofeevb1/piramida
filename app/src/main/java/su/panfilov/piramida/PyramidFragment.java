@@ -21,26 +21,23 @@ public class PyramidFragment extends Fragment {
 
     private static final String TAG = "PyramidFragment";
 
-    View rootView;
-
-    public boolean newRecord = true;
+    private View rootView;
+    private boolean newRecord = true;
     private boolean savingOn = false;
 
-    public PyramidView pyramidView;
-    public ImageButton toggleShapeButton;
-    public ImageButton toggleFavoritesButton;
-    public ImageButton likeButton;
-    public ImageButton linkButton;
-    public ImageButton apButton;
-    public LinearLayout wealthOrdersContainer;
+    private PyramidView pyramidView;
+    private ImageButton toggleShapeButton;
+    private ImageButton toggleFavoritesButton;
+    private ImageButton likeButton;
+    private ImageButton linkButton;
+    private ImageButton apButton;
+    private LinearLayout wealthOrdersContainer;
 
     private Diary diary;
-
-    private boolean isWealthOrdersVisible = true; // Track the current mode
+    private boolean isWealthOrdersVisible = true;
 
     public static PyramidFragment newInstance() {
-        PyramidFragment fragment = new PyramidFragment();
-        return fragment;
+        return new PyramidFragment();
     }
 
     @Override
@@ -49,57 +46,44 @@ public class PyramidFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_pyramid, container, false);
+        initViews();
+        setListeners();
+        setSavingOn(false);
+        return rootView;
+    }
 
+    private void initViews() {
         pyramidView = rootView.findViewById(R.id.pyramid);
         toggleShapeButton = rootView.findViewById(R.id.toggleShapeButton);
         toggleFavoritesButton = rootView.findViewById(R.id.toggleFavoritesButton);
         likeButton = rootView.findViewById(R.id.likeButton);
         linkButton = rootView.findViewById(R.id.linkButton);
-        linkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openInfoScreen();
-            }
-        });
         apButton = rootView.findViewById(R.id.apButton);
         wealthOrdersContainer = rootView.findViewById(R.id.wealthOrdersContainer);
-
-        setSavingOn(false);
-
-        toggleShapeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleShape(v);
-            }
-        });
-
-        apButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleWealthOrders();
-            }
-        });
-
-        return rootView;
     }
-    private void openInfoScreen() {
-        // Создаем новый фрагмент
-        InfoFragment infoFragment = new InfoFragment();
 
-        // Заменяем текущий фрагмент на новый
+    private void setListeners() {
+        linkButton.setOnClickListener(v -> openInfoScreen());
+        toggleShapeButton.setOnClickListener(v -> toggleShape());
+        apButton.setOnClickListener(v -> toggleWealthOrders());
+    }
+
+    private void openInfoScreen() {
         if (getFragmentManager() != null) {
             getFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, infoFragment) // Замените на ваш контейнер для фрагментов
-                    .addToBackStack(null) // Добавляем в стек, чтобы можно было вернуться назад
+                    .replace(R.id.fragment_container, new InfoFragment())
+                    .addToBackStack(null)
                     .commit();
         }
     }
+
     public void setSavingOn(boolean savingOn) {
         this.savingOn = savingOn;
-        pyramidView.savingOn = savingOn;
+        if (pyramidView != null) {
+            pyramidView.setSavingOn(savingOn);
+        }
     }
 
     public boolean getSavingOn() {
@@ -108,92 +92,70 @@ public class PyramidFragment extends Fragment {
 
     public void setDiary(Diary diary) {
         this.diary = diary;
-        pyramidView.saveTranslation.diary = diary;
+        if (pyramidView != null) {
+            pyramidView.setDiary(diary);
+        }
     }
 
     public Diary getDiary() {
         return diary;
     }
 
-    public void toggleShape(View view) {
+    private void toggleShape() {
         if (pyramidView != null) {
             pyramidView.toggleShape();
-            if (pyramidView.isTriangle()) {
-                toggleShapeButton.setImageResource(R.drawable.square);
-            } else {
-                toggleShapeButton.setImageResource(R.drawable.triangle);
-            }
+            updateToggleShapeButtonIcon();
         }
     }
 
-    public void toggleFavorites(View view) {
-        // Logic for toggling favorites
+    private void updateToggleShapeButtonIcon() {
+        int iconRes = pyramidView.isTriangle() ? R.drawable.square : R.drawable.triangle;
+        toggleShapeButton.setImageResource(iconRes);
     }
 
-    public void likeTapped(View view) {
-        // Logic for like button
-    }
-
-    public void toggleWealthOrders() {
+    private void toggleWealthOrders() {
         Log.d(TAG, "toggleWealthOrders called");
-        if (isWealthOrdersVisible) {
-            Log.d(TAG, "Switching to time units");
-            wealthOrdersContainer.setVisibility(View.VISIBLE);
-            updateLabelsForTimeUnits();
-        } else {
-            Log.d(TAG, "Switching to wealth orders");
-            wealthOrdersContainer.setVisibility(View.VISIBLE);
-            updateLabelsForWealthOrders();
-        }
         isWealthOrdersVisible = !isWealthOrdersVisible;
-        Log.d(TAG, "wealthOrdersContainer visibility: " + (wealthOrdersContainer.getVisibility() == View.VISIBLE ? "VISIBLE" : "GONE"));
+        updateWealthOrdersVisibility();
     }
 
-    private void updateLabelsForWealthOrders() {
-        String[] wealthOrders = {
-                "1000 000 000",
-                "1 000 000",
-                "100 000",
-                "10 000",
-                "1000",
-                "100",
-                "10"
-        };
-        updateLabels(wealthOrders);
+    private void updateWealthOrdersVisibility() {
+        wealthOrdersContainer.setVisibility(View.VISIBLE);
+        String[] labels = isWealthOrdersVisible ? getWealthOrdersLabels() : getTimeUnitsLabels();
+        updateLabels(labels);
     }
 
-    private void updateLabelsForTimeUnits() {
-        String[] timeUnits = {
-                "10 лет",
-                "Год",
-                "Месяц",
-                "День",
-                "Час",
-                "Минута",
-                "Секунда" // Added 7th element
+    private String[] getWealthOrdersLabels() {
+        return new String[]{
+                "1,000,000,000", "1,000,000", "100,000", "10,000", "1,000", "100", "10"
         };
-        updateLabels(timeUnits);
+    }
+
+    private String[] getTimeUnitsLabels() {
+        return new String[]{
+                "10 лет", "Год", "Месяц", "День", "Час", "Минута", "Секунда"
+        };
     }
 
     private void updateLabels(String[] labels) {
         Log.d(TAG, "Updating labels with: " + Arrays.toString(labels));
-        TextView wealthOrder1 = rootView.findViewById(R.id.wealthOrder1);
-        TextView wealthOrder2 = rootView.findViewById(R.id.wealthOrder2);
-        TextView wealthOrder3 = rootView.findViewById(R.id.wealthOrder3);
-        TextView wealthOrder4 = rootView.findViewById(R.id.wealthOrder4);
-        TextView wealthOrder5 = rootView.findViewById(R.id.wealthOrder5);
-        TextView wealthOrder6 = rootView.findViewById(R.id.wealthOrder6);
-        TextView wealthOrder7 = rootView.findViewById(R.id.wealthOrder7);
-
-        wealthOrder1.setText(labels[0]);
-        wealthOrder2.setText(labels[1]);
-        wealthOrder3.setText(labels[2]);
-        wealthOrder4.setText(labels[3]);
-        wealthOrder5.setText(labels[4]);
-        wealthOrder6.setText(labels[5]);
-        wealthOrder7.setText(labels[6]);
-
+        TextView[] wealthOrderTextViews = getWealthOrderTextViews();
+        for (int i = 0; i < labels.length; i++) {
+            wealthOrderTextViews[i].setText(labels[i]);
+        }
         Log.d(TAG, "Labels updated successfully");
+    }
+
+    private TextView[] getWealthOrderTextViews() {
+        return new TextView[]{
+                rootView.findViewById(R.id.wealthOrder1),
+                rootView.findViewById(R.id.wealthOrder2),
+                rootView.findViewById(R.id.wealthOrder3),
+                rootView.findViewById(R.id.wealthOrder4),
+                rootView.findViewById(R.id.wealthOrder5),
+                rootView.findViewById(R.id.wealthOrder6),
+                rootView.findViewById(R.id.wealthOrder7)
+        };
     }
 
     @Override
