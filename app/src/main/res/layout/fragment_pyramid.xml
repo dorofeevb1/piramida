@@ -15,17 +15,89 @@
         android:scaleType="fitXY"
         android:src="@drawable/bg" />
 
-    <!-- Кнопка AP*10 в левом верхнем углу -->
-    <ImageButton
-        android:id="@+id/apButton"
+    <!-- Контейнер для значений богатства и кнопки AP*10 -->
+    <LinearLayout
+        android:id="@+id/wealthOrdersContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ap_10" />
+        android:orientation="vertical">
+
+        <!-- Кнопка AP*10 -->
+        <ImageButton
+            android:id="@+id/apButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ap_10" />
+
+        <!-- Значения богатства с отступами -->
+        <TextView
+            android:id="@+id/wealthOrder1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="100dp"
+            android:text="1000 000 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/wealthOrder2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="1 000 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/wealthOrder3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="100 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/wealthOrder4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp"
+            android:text="10 000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/wealthOrder5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp"
+            android:text="1000"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/wealthOrder6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:text="100"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/wealthOrder7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:text="10"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+    </LinearLayout>
 
     <!-- Пирамида -->
     <su.panfilov.piramida.components.PyramidView
@@ -40,9 +112,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:orientation="vertical"
+        android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp">
+        android:orientation="vertical">
 
         <!-- Кнопка "Информация" -->
         <ImageButton
@@ -82,82 +154,6 @@
             android:background="@android:color/transparent"
             android:onClick="likeTapped"
             android:src="@drawable/ic_like" />
-    </LinearLayout>
-
-    <!-- Контейнер для отображения порядков богатства или времени -->
-    <LinearLayout
-        android:id="@+id/wealthOrdersContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/pyramid"
-        android:layout_centerHorizontal="true"
-        android:orientation="vertical"
-        android:visibility="visible"
-        android:background="@android:color/white"
-        android:padding="16dp">
-
-        <TextView
-            android:id="@+id/wealthOrder1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1000 000 000"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
-
-        <TextView
-            android:id="@+id/wealthOrder2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1 000 000"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
-
-        <TextView
-            android:id="@+id/wealthOrder3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100 000"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
-
-        <TextView
-            android:id="@+id/wealthOrder4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10 000"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
-
-        <TextView
-            android:id="@+id/wealthOrder5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1000"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
-
-        <TextView
-            android:id="@+id/wealthOrder6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="100"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
-
-        <TextView
-            android:id="@+id/wealthOrder7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="10"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_gravity="left" />
     </LinearLayout>
 
 </RelativeLayout>

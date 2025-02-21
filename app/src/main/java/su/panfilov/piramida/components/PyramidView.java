@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -151,6 +152,7 @@ public class PyramidView extends RelativeLayout {
         swipeView.tag = layer + 1000;
         swipeView.delegate = new PyramidSwipeViewDelegate();
         swipeView.userInteractive = userInteractive;
+
         return swipeView;
     }
 
@@ -170,7 +172,23 @@ public class PyramidView extends RelativeLayout {
         triangleView.bottom = Math.round(triangleView.top + triangleHeight);
         triangleView.setOnClickListener(v -> toggleLockState());
         addView(triangleView, createTriangleLayoutParams());
+
+        // Создаем TextView для отображения текста "Фамилия"
+        TextView familyNameTextView = new TextView(context);
+        familyNameTextView.setText("Фамилия");
+        familyNameTextView.setTextColor(Color.BLACK); // Установите нужный цвет текста
+        familyNameTextView.setTextSize(16); // Установите нужный размер текста
+
+        // Размещаем TextView под нижней частью пирамиды
+        LayoutParams textViewParams = new LayoutParams(
+                LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT
+        );
+        textViewParams.topMargin = Math.round(bottomOfPiramida - 80 ); // 10 - отступ от нижней части пирамиды
+        textViewParams.leftMargin = Math.round(leftOfPiramida * 5 );
+        addView(familyNameTextView, textViewParams);
     }
+
 
     private LayoutParams createTriangleLayoutParams() {
         return new LayoutParams(
