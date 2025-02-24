@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
+import androidx.core.content.ContextCompat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +36,7 @@ public class PlayFragment extends Fragment {
     public Diary diary;
     int currentCommand = 0;
 
+    // Создание нового экземпляра фрагмента
     public static PlayFragment newInstance() {
         PlayFragment fragment = new PlayFragment();
         return fragment;
@@ -49,27 +50,34 @@ public class PlayFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Инициализация представления фрагмента
         rootView = inflater.inflate(R.layout.fragment_play, container, false);
 
+        // Настройка представлений
         piramidaView = rootView.findViewById(R.id.pyramidPlay);
         playButton = rootView.findViewById(R.id.playButton);
         setPlayingOn(false);
 
+        // Отключение интерактивности пользователя
         piramidaView.userInteractive = false;
         // addObservers();
 
+        // Инициализация начального состояния
         initStartState();
         return rootView;
     }
 
+    // Инициализация начального состояния пирамиды
     private void initStartState() {
         currentCommand = 0;
         int countOfCommands = 0;
 
+        // Получение количества команд из дневника
         if (diary.historyCommands.size() > 0) {
             countOfCommands = diary.historyCommands.size();
         }
 
+        // Установка начальных слоев и блокировки
         if (countOfCommands >= 9) {
             for (int layer = 0; layer <= 7; layer++) {
                 HistoryCommands command = diary.historyCommands.get(layer);
@@ -80,28 +88,33 @@ public class PlayFragment extends Fragment {
             currentCommand = 9;
         }
 
+        // Обновление всех слоев
         if (piramidaView.layerViews.size() > 0) {
             piramidaView.updateAll();
         }
     }
 
+    // Установка состояния воспроизведения
     public void setPlayingOn(boolean playingOn) {
         this.playingOn = playingOn;
         if (playingOn) {
-            playButton.setImageDrawable(requireContext().getDrawable(R.drawable.pause));
+            playButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.pause));
         } else {
-            playButton.setImageDrawable(requireContext().getDrawable(R.drawable.play));
+            playButton.setImageDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.play));
         }
     }
 
+    // Получение текущего состояния воспроизведения
     public boolean getPlayingOn() {
         return playingOn;
     }
 
+    // Получение дневника
     public Diary getDiary() {
         return diary;
     }
 
+    // Обработка нажатия на кнопку воспроизведения
     public void playTapped(View view) {
         setPlayingOn(!playingOn);
         if (playingOn) {
@@ -110,6 +123,7 @@ public class PlayFragment extends Fragment {
         }
     }
 
+    // Обработка нажатия на кнопку "Назад"
     public void backTapped(View view) {
     }
 
@@ -119,10 +133,12 @@ public class PlayFragment extends Fragment {
         setPlayingOn(false);
     }
 
+    // Выполнение следующей команды
     public void nextCommand(int indexOfCommand) {
         nextCommand(indexOfCommand, false);
     }
 
+    // Выполнение следующей команды с возможностью анимации
     public void nextCommand(int indexOfCommand, boolean animated) {
         if (!playingOn) {
             return;
@@ -152,6 +168,7 @@ public class PlayFragment extends Fragment {
         TextView label = piramidaView.layerViews.get(layer).label;
         String newTitle;
 
+        // Выполнение команды в зависимости от её типа
         switch (SaveTranslation.PiramidaCommands.values()[command.command]) {
             case setLayer:
                 piramidaView.piramidaDataSource.setLayer(layer, index);
@@ -228,7 +245,7 @@ public class PlayFragment extends Fragment {
         currentCommand = indexOfCommand + 1;
         HistoryCommands nextCommandObject = diary.historyCommands.get(currentCommand);
 
-        // schedule next command
+        // Планирование выполнения следующей команды
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
             @Override
@@ -241,7 +258,7 @@ public class PlayFragment extends Fragment {
                         }
                     });
                 } catch (NullPointerException e) {
-                    // Handle exception
+                    // Обработка исключения
                 }
             }
         }, Math.round(nextCommandObject.deltaTime * 1000));

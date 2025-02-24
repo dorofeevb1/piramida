@@ -1,15 +1,13 @@
 package su.panfilov.piramida.components;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.media.MediaPlayer;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -18,51 +16,51 @@ import java.util.ArrayList;
 import su.panfilov.piramida.R;
 import su.panfilov.piramida.models.PyramidsDataSource;
 import su.panfilov.piramida.models.SaveTranslation;
-import su.panfilov.piramida.models.Diary; // Import the Diary class
+import su.panfilov.piramida.models.Diary;
 
 public class PyramidView extends RelativeLayout {
-
     private static final String TAG = "PyramidView";
     private Context context;
 
+    // Коэффициенты и отступы для расчета размеров пирамиды
     private float coeficentOfHead = 0.185f;
-    private float horizontalMarginInPercent = 8;
-    private float topMarginInPercent = 8;
-    private float bottomMarginInPercent = 8;
+    private float horizontalMarginPercent = 8;
+    private float verticalMarginPercent = 8;
 
-    private float topOfPiramida;
-    private float bottomOfPiramida;
-    private float leftOfPiramida;
-    private float rightOfPiramida;
-
-    private float heightOfPiramida;
-    private float widthOfPiramida;
-
-    private float headOfPiramida;
+    // Размеры и позиции пирамиды
+    private float topOfPyramid;
+    private float bottomOfPyramid;
+    private float leftOfPyramid;
+    private float rightOfPyramid;
+    private float heightOfPyramid;
+    private float widthOfPyramid;
+    private float headOfPyramid;
     private float widthOfHead;
-
     private float heightOfLayer;
     private float deltaWidthOfLayer;
 
+    // Флаги состояния
     private boolean layersCreated = false;
-
     public PyramidsDataSource piramidaDataSource = new PyramidsDataSource();
-    public boolean piramidaIsLocked = false;
+    public boolean pyramidIsLocked = false;
+    private boolean isRectangle = false;
+    private boolean isTriangle = true;
 
+    // Сохранение состояния
     public SaveTranslation saveTranslation;
     public boolean savingOn = false;
 
+    // Список слоев и представлений
     public ArrayList<SwipeView> layerViews = new ArrayList<>(0);
     public TriangleView triangleView;
     public LockView lockView;
 
+    // Начальные состояния
     public boolean lockViewInitialVisibility = false;
     public String[] initialLabelsText = {};
-
     public boolean userInteractive = true;
 
-    private boolean isTriangle = true;
-
+    // Конструкторы
     public PyramidView(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
@@ -73,27 +71,72 @@ public class PyramidView extends RelativeLayout {
         initView(context);
     }
 
+    // Инициализация представления
     private void initView(Context context) {
         this.context = context;
         saveTranslation = new SaveTranslation(context);
         playSound();
     }
 
+    // Воспроизведение звука при инициализации
     private void playSound() {
         MediaPlayer mp = MediaPlayer.create(context, R.raw.sound_shelk);
         mp.start();
         mp.setOnCompletionListener(MediaPlayer::release);
     }
 
+    // Переключение формы пирамиды
     public void toggleShape() {
-        isTriangle = !isTriangle;
-        triangleView.setIsTriangle(isTriangle);
+        Log.d(TAG, "toggleShape called. Current isTriangle: " + isTriangle);
+
+        // Получаем контекст из текущего представления
+        Context context = getContext();
+
+        // Находим контейнер с кнопками
+        LinearLayout buttonsContainer = ((Activity) context).findViewById(R.id.buttonsContainer);
+
+        if (buttonsContainer == null) {
+            Log.e(TAG, "buttonsContainer not found!");
+            return;
+        }
+
+        if (isTriangle) {
+            // Скрываем треугольник и его слои
+            if (triangleView != null) {
+                triangleView.setVisibility(View.GONE);
+                Log.d(TAG, "Triangle view set to GONE");
+            }
+            // Устанавливаем горизонтальную ориентацию для контейнера с кнопками
+            buttonsContainer.setOrientation(LinearLayout.HORIZONTAL);
+            isTriangle = false;
+            isRectangle = true;
+            hideAllLayers();
+        } else {
+            // Скрываем прямоугольник и его слои
+            if (lockView != null) {
+                lockView.setVisibility(View.GONE);
+                Log.d(TAG, "Rectangle view set to GONE");
+            }
+            // Устанавливаем вертикальную ориентацию для контейнера с кнопками
+            buttonsContainer.setOrientation(LinearLayout.VERTICAL);
+            isRectangle = false;
+            isTriangle = true;
+            hideAllLayers();
+        }
+
+        // Обновляем слои и запрашиваем перерисовку
+        layersCreated = false;
         requestLayout();
         invalidate();
+        Log.d(TAG, "Shape toggled, requesting layout and invalidate. New isTriangle: " + isTriangle);
     }
 
-    public boolean isTriangle() {
-        return isTriangle;
+
+    // Метод для скрытия всех слоев
+    private void hideAllLayers() {
+        for (SwipeView layer : layerViews) {
+            layer.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -105,34 +148,61 @@ public class PyramidView extends RelativeLayout {
         layoutChildren();
     }
 
+    // Инициализация слоев пирамиды
     private void initializeLayers() {
         layersCreated = true;
         calculateDimensions();
         createLayers();
-        createTriangleView();
-        createLockView();
+        if (isTriangle) {
+            createTriangleView();
+        } else {
+            createLockView();
+        }
         updateAll();
     }
 
+    // Проверка, является ли текущая форма треугольником
+    public boolean isTriangle() {
+        return isTriangle;
+    }
+
+    // Расчет размеров пирамиды
     private void calculateDimensions() {
         float widthMeasureSpec = getMeasuredWidth();
         float heightMeasureSpec = getMeasuredHeight();
 
-        topOfPiramida = widthMeasureSpec * topMarginInPercent / 100;
-        bottomOfPiramida = heightMeasureSpec * (100 - bottomMarginInPercent) / 100;
-        leftOfPiramida = widthMeasureSpec * horizontalMarginInPercent / 100;
-        rightOfPiramida = widthMeasureSpec - leftOfPiramida;
+        topOfPyramid = widthMeasureSpec * verticalMarginPercent / 100;
+        bottomOfPyramid = heightMeasureSpec * (100 - verticalMarginPercent) / 100;
+        leftOfPyramid = widthMeasureSpec * horizontalMarginPercent / 100;
+        rightOfPyramid = widthMeasureSpec - leftOfPyramid;
 
-        heightOfPiramida = bottomOfPiramida - topOfPiramida;
-        widthOfPiramida = rightOfPiramida - leftOfPiramida;
+        heightOfPyramid = bottomOfPyramid - topOfPyramid;
+        widthOfPyramid = rightOfPyramid - leftOfPyramid;
 
-        headOfPiramida = topOfPiramida + heightOfPiramida * coeficentOfHead;
-        widthOfHead = widthOfPiramida * coeficentOfHead;
-
-        heightOfLayer = (bottomOfPiramida - headOfPiramida) / 8;
-        deltaWidthOfLayer = (widthOfPiramida - widthOfHead) / 8;
+        if (isTriangle) {
+            calculateTriangleDimensions();
+        } else {
+            calculateRectangleDimensions();
+        }
     }
 
+    // Расчет размеров треугольника
+    private void calculateTriangleDimensions() {
+        headOfPyramid = topOfPyramid + heightOfPyramid * coeficentOfHead;
+        widthOfHead = widthOfPyramid * coeficentOfHead;
+        heightOfLayer = (bottomOfPyramid - headOfPyramid) / 8;
+        deltaWidthOfLayer = (widthOfPyramid - widthOfHead) / 8;
+        Log.d(TAG, "Triangle Dimensions - heightOfLayer: " + heightOfLayer + ", deltaWidthOfLayer: " + deltaWidthOfLayer);
+    }
+
+    // Расчет размеров прямоугольника
+    private void calculateRectangleDimensions() {
+        heightOfLayer = (heightOfPyramid / 8) / 1.23f;
+        deltaWidthOfLayer = 0;
+        Log.d(TAG, "Rectangle Dimensions - heightOfLayer: " + heightOfLayer);
+    }
+
+    // Создание слоев пирамиды
     private void createLayers() {
         for (int layer = 0; layer < 8; layer++) {
             SwipeView swipeView = createSwipeView(layer);
@@ -141,85 +211,98 @@ public class PyramidView extends RelativeLayout {
         }
     }
 
+    // Создание представления слоя
     private SwipeView createSwipeView(int layer) {
         SwipeView swipeView = new SwipeView(context, deltaWidthOfLayer, layer,
-                Math.round(widthOfPiramida - deltaWidthOfLayer * layer),
+                Math.round(widthOfPyramid - deltaWidthOfLayer * layer),
                 Math.round(heightOfLayer));
-        swipeView.left = Math.round(leftOfPiramida + deltaWidthOfLayer / 2 * layer);
-        swipeView.top = Math.round(bottomOfPiramida - heightOfLayer * (layer + 1));
-        swipeView.right = swipeView.left + Math.round(widthOfPiramida - deltaWidthOfLayer * layer);
+        swipeView.left = Math.round(leftOfPyramid + deltaWidthOfLayer / 2 * layer);
+        swipeView.top = Math.round(bottomOfPyramid - heightOfLayer * (layer + 1));
+        swipeView.right = swipeView.left + Math.round(widthOfPyramid - deltaWidthOfLayer * layer);
         swipeView.bottom = swipeView.top + Math.round(heightOfLayer);
         swipeView.tag = layer + 1000;
         swipeView.delegate = new PyramidSwipeViewDelegate();
         swipeView.userInteractive = userInteractive;
-
         return swipeView;
     }
 
+    // Создание параметров макета для слоя
     private LayoutParams createLayoutParams(int layer) {
         return new LayoutParams(
-                Math.round(widthOfPiramida - deltaWidthOfLayer * layer),
+                Math.round(widthOfPyramid - deltaWidthOfLayer * layer),
                 Math.round(heightOfLayer));
     }
 
+    // Создание представления треугольника
     private void createTriangleView() {
         int triangleWidth = Math.round(widthOfHead);
-        int triangleHeight = Math.round(heightOfPiramida * coeficentOfHead);
+        int triangleHeight = Math.round(heightOfPyramid * coeficentOfHead);
         triangleView = new TriangleView(context, triangleWidth, triangleHeight);
-        triangleView.left = Math.round(leftOfPiramida + widthOfPiramida / 2 - widthOfHead / 2);
-        triangleView.top = Math.round(topOfPiramida);
+        triangleView.left = Math.round(leftOfPyramid + widthOfPyramid / 2 - widthOfHead / 2);
+        triangleView.top = Math.round(topOfPyramid);
         triangleView.right = Math.round(triangleView.left + triangleWidth);
         triangleView.bottom = Math.round(triangleView.top + triangleHeight);
         triangleView.setOnClickListener(v -> toggleLockState());
         addView(triangleView, createTriangleLayoutParams());
 
-        // Создаем TextView для отображения текста "Фамилия"
+        createFamilyNameTextView();
+    }
+
+    // Создание текстового представления для отображения фамилии
+    private void createFamilyNameTextView() {
         TextView familyNameTextView = new TextView(context);
         familyNameTextView.setText("Фамилия");
-        familyNameTextView.setTextColor(Color.BLACK); // Установите нужный цвет текста
-        familyNameTextView.setTextSize(16); // Установите нужный размер текста
+        familyNameTextView.setTextColor(Color.BLACK);
+        familyNameTextView.setTextSize(16);
 
-        // Размещаем TextView под нижней частью пирамиды
         LayoutParams textViewParams = new LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT
         );
-        textViewParams.topMargin = Math.round(bottomOfPiramida - 80 ); // 10 - отступ от нижней части пирамиды
-        textViewParams.leftMargin = Math.round(leftOfPiramida * 5 );
+        textViewParams.topMargin = Math.round(bottomOfPyramid - 80);
+        textViewParams.leftMargin = Math.round(leftOfPyramid * 5);
         addView(familyNameTextView, textViewParams);
     }
 
-
+    // Создание параметров макета для треугольника
     private LayoutParams createTriangleLayoutParams() {
         return new LayoutParams(
                 Math.round(widthOfHead),
-                Math.round(heightOfPiramida * coeficentOfHead));
+                Math.round(heightOfPyramid * coeficentOfHead));
     }
 
+    // Создание представления блокировки
     private void createLockView() {
-        lockView = new LockView(context, Math.round(widthOfPiramida + 24), Math.round(heightOfPiramida + 24));
-        lockView.left = Math.round(leftOfPiramida - 12);
-        lockView.top = Math.round(topOfPiramida - 12);
-        lockView.right = Math.round(rightOfPiramida + 12);
-        lockView.bottom = Math.round(bottomOfPiramida + 12);
+        lockView = new LockView(context, Math.round(widthOfPyramid + 24), Math.round(heightOfPyramid + 24));
+        lockView.left = Math.round(leftOfPyramid - 12);
+        lockView.top = Math.round(topOfPyramid - 12);
+        lockView.right = Math.round(rightOfPyramid + 12);
+        lockView.bottom = Math.round(bottomOfPyramid + 12);
         lockView.setVisibility(lockViewInitialVisibility ? VISIBLE : INVISIBLE);
         addView(lockView, createLockLayoutParams());
     }
 
+    // Создание параметров макета для блокировки
     private LayoutParams createLockLayoutParams() {
         return new LayoutParams(
-                Math.round(widthOfPiramida + 24),
-                Math.round(heightOfPiramida + 24));
+                Math.round(widthOfPyramid + 24),
+                Math.round(heightOfPyramid + 24));
     }
 
+    // Размещение дочерних представлений
     private void layoutChildren() {
         for (SwipeView swipeView : layerViews) {
             swipeView.layout(swipeView.left, swipeView.top, swipeView.right, swipeView.bottom);
         }
-        triangleView.layout(triangleView.left, triangleView.top, triangleView.right, triangleView.bottom);
-        lockView.layout(lockView.left, lockView.top, lockView.right, lockView.bottom);
+        if (isTriangle && triangleView != null) {
+            triangleView.layout(triangleView.left, triangleView.top, triangleView.right, triangleView.bottom);
+        }
+        if (lockView != null) {
+            lockView.layout(lockView.left, lockView.top, lockView.right, lockView.bottom);
+        }
     }
 
+    // Обновление всех слоев
     public void updateAll() {
         String[] oneSide = piramidaDataSource.getFrontSide();
         for (int layer = 0; layer < 8; layer++) {
@@ -227,37 +310,40 @@ public class PyramidView extends RelativeLayout {
         }
     }
 
+    // Включение/выключение сохранения состояния
     public void setSavingOn(boolean savingOn) {
         this.savingOn = savingOn;
-        // Additional logic if needed when saving state changes
     }
 
+    // Установка дневника
     public void setDiary(Diary diary) {
         if (this.saveTranslation != null) {
             this.saveTranslation.diary = diary;
         }
-        // Additional logic if needed when diary is set
     }
 
+    // Переключение состояния блокировки
     private void toggleLockState() {
         if (!userInteractive) {
             return;
         }
-        setPiramidaIsLocked(!piramidaIsLocked);
+        setPyramidIsLocked(!pyramidIsLocked);
         if (savingOn) {
-            saveTranslation.setLockPiramida(piramidaIsLocked);
+            saveTranslation.setLockPyramid(pyramidIsLocked);
         }
     }
 
-    protected void setPiramidaIsLocked(boolean locked) {
-        piramidaIsLocked = locked;
+    // Установка состояния блокировки пирамиды
+    protected void setPyramidIsLocked(boolean locked) {
+        pyramidIsLocked = locked;
         lockView.setVisibility(locked ? VISIBLE : INVISIBLE);
     }
 
+    // Внутренний класс для обработки событий свайпа
     private class PyramidSwipeViewDelegate implements SwipeViewDelegate {
         @Override
         public String leftTurn(int layer) {
-            if (piramidaIsLocked) {
+            if (pyramidIsLocked) {
                 handleLockedLeftTurn();
                 return piramidaDataSource.getFrontSide()[layer];
             }
@@ -265,6 +351,7 @@ public class PyramidView extends RelativeLayout {
             return piramidaDataSource.leftTurn(layer);
         }
 
+        // Обработка поворота влево при заблокированной пирамиде
         private void handleLockedLeftTurn() {
             String[] frontSide = piramidaDataSource.allLeftTurn();
             for (int tag = 1000; tag <= 1007; tag++) {
@@ -275,6 +362,7 @@ public class PyramidView extends RelativeLayout {
             }
         }
 
+        // Обработка поворота влево при разблокированной пирамиде
         private void handleUnlockedLeftTurn(int layer) {
             if (savingOn) {
                 saveTranslation.leftTurn(layer);
@@ -283,7 +371,7 @@ public class PyramidView extends RelativeLayout {
 
         @Override
         public String rightTurn(int layer) {
-            if (piramidaIsLocked) {
+            if (pyramidIsLocked) {
                 handleLockedRightTurn();
                 return piramidaDataSource.getFrontSide()[layer];
             }
@@ -291,6 +379,7 @@ public class PyramidView extends RelativeLayout {
             return piramidaDataSource.rightTurn(layer);
         }
 
+        // Обработка поворота вправо при заблокированной пирамиде
         private void handleLockedRightTurn() {
             String[] frontSide = piramidaDataSource.allRightTurn();
             for (int tag = 1000; tag <= 1007; tag++) {
@@ -301,6 +390,7 @@ public class PyramidView extends RelativeLayout {
             }
         }
 
+        // Обработка поворота вправо при разблокированной пирамиде
         private void handleUnlockedRightTurn(int layer) {
             if (savingOn) {
                 saveTranslation.rightTurn(layer);
@@ -318,6 +408,7 @@ public class PyramidView extends RelativeLayout {
             handleSetOneSide(byLayer);
         }
 
+        // Обработка установки одной стороны
         private void handleSetOneSide(int byLayer) {
             for (int tag = 1000; tag <= 1007; tag++) {
                 if (tag == byLayer + 1000) {

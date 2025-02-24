@@ -36,6 +36,7 @@ public class PyramidFragment extends Fragment {
     private Diary diary;
     private boolean isWealthOrdersVisible = true;
 
+    // Создание нового экземпляра фрагмента
     public static PyramidFragment newInstance() {
         return new PyramidFragment();
     }
@@ -47,6 +48,7 @@ public class PyramidFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Инициализация представления фрагмента
         rootView = inflater.inflate(R.layout.fragment_pyramid, container, false);
         initViews();
         setListeners();
@@ -54,6 +56,7 @@ public class PyramidFragment extends Fragment {
         return rootView;
     }
 
+    // Инициализация представлений
     private void initViews() {
         pyramidView = rootView.findViewById(R.id.pyramid);
         toggleShapeButton = rootView.findViewById(R.id.toggleShapeButton);
@@ -64,12 +67,14 @@ public class PyramidFragment extends Fragment {
         wealthOrdersContainer = rootView.findViewById(R.id.wealthOrdersContainer);
     }
 
+    // Установка слушателей для кнопок
     private void setListeners() {
         linkButton.setOnClickListener(v -> openInfoScreen());
         toggleShapeButton.setOnClickListener(v -> toggleShape());
         apButton.setOnClickListener(v -> toggleWealthOrders());
     }
 
+    // Открытие экрана с информацией
     private void openInfoScreen() {
         if (getFragmentManager() != null) {
             getFragmentManager().beginTransaction()
@@ -79,6 +84,7 @@ public class PyramidFragment extends Fragment {
         }
     }
 
+    // Установка состояния сохранения
     public void setSavingOn(boolean savingOn) {
         this.savingOn = savingOn;
         if (pyramidView != null) {
@@ -86,10 +92,12 @@ public class PyramidFragment extends Fragment {
         }
     }
 
+    // Получение текущего состояния сохранения
     public boolean getSavingOn() {
         return savingOn;
     }
 
+    // Установка дневника
     public void setDiary(Diary diary) {
         this.diary = diary;
         if (pyramidView != null) {
@@ -97,10 +105,12 @@ public class PyramidFragment extends Fragment {
         }
     }
 
+    // Получение дневника
     public Diary getDiary() {
         return diary;
     }
 
+    // Переключение формы пирамиды
     private void toggleShape() {
         if (pyramidView != null) {
             pyramidView.toggleShape();
@@ -108,35 +118,41 @@ public class PyramidFragment extends Fragment {
         }
     }
 
+    // Обновление иконки кнопки переключения формы
     private void updateToggleShapeButtonIcon() {
         int iconRes = pyramidView.isTriangle() ? R.drawable.square : R.drawable.triangle;
         toggleShapeButton.setImageResource(iconRes);
     }
 
+    // Переключение видимости контейнера "Богатство"
     private void toggleWealthOrders() {
         Log.d(TAG, "toggleWealthOrders called");
         isWealthOrdersVisible = !isWealthOrdersVisible;
         updateWealthOrdersVisibility();
     }
 
+    // Обновление видимости контейнера "Богатство"
     private void updateWealthOrdersVisibility() {
         wealthOrdersContainer.setVisibility(View.VISIBLE);
         String[] labels = isWealthOrdersVisible ? getWealthOrdersLabels() : getTimeUnitsLabels();
         updateLabels(labels);
     }
 
+    // Получение меток для "Богатства"
     private String[] getWealthOrdersLabels() {
         return new String[]{
                 "1,000,000,000", "1,000,000", "100,000", "10,000", "1,000", "100", "10"
         };
     }
 
+    // Получение меток для единиц времени
     private String[] getTimeUnitsLabels() {
         return new String[]{
                 "10 лет", "Год", "Месяц", "День", "Час", "Минута", "Секунда"
         };
     }
 
+    // Обновление меток в контейнере
     private void updateLabels(String[] labels) {
         Log.d(TAG, "Updating labels with: " + Arrays.toString(labels));
         TextView[] wealthOrderTextViews = getWealthOrderTextViews();
@@ -146,6 +162,7 @@ public class PyramidFragment extends Fragment {
         Log.d(TAG, "Labels updated successfully");
     }
 
+    // Получение массива TextView для меток "Богатства"
     private TextView[] getWealthOrderTextViews() {
         return new TextView[]{
                 rootView.findViewById(R.id.wealthOrder1),
