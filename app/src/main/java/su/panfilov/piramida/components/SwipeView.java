@@ -68,6 +68,10 @@ public class SwipeView extends ViewGroup {
         setup();
     }
 
+    public String getText() {
+        return label.getText().toString();
+    }
+
     private void initAttributes(@NonNull AttributeSet attrs) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SwipeView, 0, 0);
         try {

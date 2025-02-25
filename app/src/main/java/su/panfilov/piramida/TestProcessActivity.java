@@ -15,7 +15,8 @@ public class TestProcessActivity extends AppCompatActivity {
     private int currentFacet = 0;
     private ProgressBar progressBar;
     private TextView textFacet;
-    private ArrayList<String[]> facetsList; // Список граней
+    private ArrayList<String[]> facetsList;
+    private ArrayList<String> selectedFacets = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +27,14 @@ public class TestProcessActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         textFacet = findViewById(R.id.textFacet);
         Button btnAbort = findViewById(R.id.btnAbort);
+        Button btnSelect = findViewById(R.id.btnSelect);
 
-        facetsList = loadFacets(); // Загрузка граней
+        facetsList = loadFacets();
 
         updateFacet();
 
         btnAbort.setOnClickListener(v -> showAbortDialog());
+        btnSelect.setOnClickListener(v -> selectFacet());
     }
 
     private ArrayList<String[]> loadFacets() {
@@ -41,9 +44,18 @@ public class TestProcessActivity extends AppCompatActivity {
         return facets;
     }
 
+    private void selectFacet() {
+        if (currentFacet < facetsCount) {
+            String[] currentFacetWords = facetsList.get(new Random().nextInt(facetsList.size()));
+            selectedFacets.add(String.join(", ", currentFacetWords));
+            updateFacet();
+        }
+    }
+
     private void updateFacet() {
         if (currentFacet >= facetsCount) {
             Intent intent = new Intent(this, TestResultsActivity.class);
+            intent.putStringArrayListExtra("SELECTED_FACETS", selectedFacets);
             startActivity(intent);
             finish();
             return;

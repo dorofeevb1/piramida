@@ -8,6 +8,57 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Экран теста"
-        android:textSize="20sp" />
+        android:text="Тест"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Выберите режим тестирования в зависимости от масштаба вашего запроса. Чем масштабнее запрос, тем больше граней будет в процессе и тем больше времени вам потребуется для прохождения теста."
+        android:textSize="16sp"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="День (4 грани, 2-4 минуты)"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Месяц (12 граней, 6-12 минут)"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnYear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Год (20 граней, 10-20 минут)"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnDecade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Десятилетие (54 грани, 26-54 минуты)"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnResults"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Результаты пройденных тестов"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnAboutTest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="О тесте"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>

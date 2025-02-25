@@ -6,9 +6,17 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/textResults"
+        android:id="@+id/resultsTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Результаты теста"
-        android:textSize="20sp"/>
+        android:textSize="18sp"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnClose"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Закрыть"
+        android:layout_marginTop="16dp" />
+
 </LinearLayout>

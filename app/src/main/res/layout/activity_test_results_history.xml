@@ -6,29 +6,23 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/textFacet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Грани теста"
-        android:textSize="18sp" />
+        android:text="Результаты пройденных тестов"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
+    <ListView
+        android:id="@+id/resultsListView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="100" />
+        android:layout_marginTop="16dp" />
 
     <Button
-        android:id="@+id/btnSelect"
+        android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select" />
-
-    <Button
-        android:id="@+id/btnAbort"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Abort" />
+        android:text="Назад"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>

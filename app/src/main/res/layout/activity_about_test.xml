@@ -6,32 +6,32 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/aboutTestTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Тест"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_gravity="center_horizontal"
-        android:paddingBottom="10dp"/>
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/aboutTestText"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
-        android:paddingBottom="20dp"/>
+        android:layout_marginTop="16dp"
+        android:text="@string/about_test_info" />
 
     <Button
         android:id="@+id/btnBack"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Назад"/>
+        android:text="Назад"
+        android:layout_marginTop="16dp" />
 
     <Button
         android:id="@+id/btnMainScreen"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="На основной экран"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>
