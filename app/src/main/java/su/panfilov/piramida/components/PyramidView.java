@@ -7,6 +7,7 @@ import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -110,6 +111,10 @@ public class PyramidView extends RelativeLayout {
             buttonsContainer.setOrientation(LinearLayout.HORIZONTAL);
             isTriangle = false;
             isRectangle = true;
+
+            // Добавляем отступы между кнопками
+            addMarginsToButtons(buttonsContainer);
+
             hideAllLayers();
         } else {
             // Скрываем прямоугольник и его слои
@@ -117,10 +122,14 @@ public class PyramidView extends RelativeLayout {
                 lockView.setVisibility(View.GONE);
                 Log.d(TAG, "Rectangle view set to GONE");
             }
+
             // Устанавливаем вертикальную ориентацию для контейнера с кнопками
             buttonsContainer.setOrientation(LinearLayout.VERTICAL);
             isRectangle = false;
             isTriangle = true;
+
+
+
             hideAllLayers();
         }
 
@@ -130,6 +139,30 @@ public class PyramidView extends RelativeLayout {
         invalidate();
         Log.d(TAG, "Shape toggled, requesting layout and invalidate. New isTriangle: " + isTriangle);
     }
+    // Метод для добавления отступов между кнопками
+    private void addMarginsToButtons(LinearLayout buttonsContainer) {
+        for (int i = 0; i < buttonsContainer.getChildCount(); i++) {
+            View button = buttonsContainer.getChildAt(i);
+            if (button instanceof ImageButton) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
+                params.setMargins(0, 0, 16, 0); // Добавляем отступ справа
+                button.setLayoutParams(params);
+            }
+        }
+    }
+
+    // Метод для удаления отступов между кнопками
+    private void removeMarginsFromButtons(LinearLayout buttonsContainer) {
+        for (int i = 0; i < buttonsContainer.getChildCount(); i++) {
+            View button = buttonsContainer.getChildAt(i);
+            if (button instanceof ImageButton) {
+                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) button.getLayoutParams();
+                params.setMargins(0, 0, 0, 0); // Убираем все отступы
+                button.setLayoutParams(params);
+            }
+        }
+    }
+
 
 
     // Метод для скрытия всех слоев
