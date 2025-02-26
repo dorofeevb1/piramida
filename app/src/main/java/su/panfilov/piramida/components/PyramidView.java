@@ -90,18 +90,11 @@ public class PyramidView extends RelativeLayout {
     // Переключение формы пирамиды
     public void toggleShape() {
         Log.d(TAG, "toggleShape called. Current isTriangle: " + isTriangle);
-        List<SwipeViewState> layerStates = new ArrayList<>();
 
-        for (SwipeView layer : layerViews) {
-            layerStates.add(new SwipeViewState(layer));
-        }
-        // Сохраняем текущие метки перед переключением
-        String[] currentLabels = new String[layerViews.size()];
-        for (int i = 0; i < layerViews.size(); i++) {
-            currentLabels[i] = layerViews.get(i).getText();
-        }
-
+        // Получаем контекст из текущего представления
         Context context = getContext();
+
+        // Находим контейнер с кнопками
         LinearLayout buttonsContainer = ((Activity) context).findViewById(R.id.buttonsContainer);
 
         if (buttonsContainer == null) {
@@ -110,44 +103,39 @@ public class PyramidView extends RelativeLayout {
         }
 
         if (isTriangle) {
+            // Скрываем треугольник и его слои
             if (triangleView != null) {
                 triangleView.setVisibility(View.GONE);
                 Log.d(TAG, "Triangle view set to GONE");
             }
+            // Устанавливаем горизонтальную ориентацию для контейнера с кнопками
             buttonsContainer.setOrientation(LinearLayout.HORIZONTAL);
             isTriangle = false;
             isRectangle = true;
+
+            // Добавляем отступы между кнопками
             addMarginsToButtons(buttonsContainer);
+
             hideAllLayers();
         } else {
+            // Скрываем прямоугольник и его слои
             if (lockView != null) {
                 lockView.setVisibility(View.GONE);
                 Log.d(TAG, "Rectangle view set to GONE");
             }
+
+            // Устанавливаем вертикальную ориентацию для контейнера с кнопками
             buttonsContainer.setOrientation(LinearLayout.VERTICAL);
             isRectangle = false;
             isTriangle = true;
+
+            // Убираем отступы между кнопками
             removeMarginsFromButtons(buttonsContainer);
+
             hideAllLayers();
         }
-        // Recalculate dimensions
-        calculateDimensions();
 
-        // Restore the state of each layer
-        for (int i = 0; i < layerViews.size(); i++) {
-            SwipeView layer = layerViews.get(i);
-            SwipeViewState state = layerStates.get(i);
-            layer.setText(state.text);
-            layer.setVisibility(state.visibility);
-            // Restore other dynamic properties if necessary
-        }
-
-
-        // Восстанавливаем метки после переключения формы
-        for (int i = 0; i < layerViews.size(); i++) {
-            layerViews.get(i).setText(currentLabels[i]);
-        }
-
+        // Обновляем слои и запрашиваем перерисовку
         layersCreated = false;
         requestLayout();
         invalidate();

@@ -148,7 +148,7 @@ public class PyramidFragment extends Fragment {
     // Получение меток для единиц времени
     private String[] getTimeUnitsLabels() {
         return new String[]{
-                "10 лет", "Год", "Месяц", "День", "Час", "Минута", "Секунда"
+                "10 лет", "Год", "Месяц", "День", "Час", "Мин", "Сек"
         };
     }
 
