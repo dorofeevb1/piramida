@@ -31,7 +31,9 @@ public class ContentsAdapter extends BaseAdapter {
         this.headers.clear();
         notifyDataSetChanged();
     }
-
+    public int getSectionCount() {
+        return sections.size(); // Замените "sections" на вашу переменную, хранящую секции
+    }
     public Object getItem(int position) {
         for (Object section : this.sections.keySet()) {
             Adapter adapter = sections.get(section);

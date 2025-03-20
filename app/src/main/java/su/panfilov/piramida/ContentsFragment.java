@@ -2,14 +2,16 @@ package su.panfilov.piramida;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ListView;
+import androidx.appcompat.widget.SearchView; // Правильный импорт
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import su.panfilov.piramida.components.ContentsAdapter;
 import su.panfilov.piramida.components.ContentsItemAdapter;
@@ -17,7 +19,8 @@ import su.panfilov.piramida.models.PyramidsDataSource;
 
 public class ContentsFragment extends Fragment {
 
-    private boolean isFirstImage = true; // Track the current image state
+    private PyramidsDataSource pyramidsDataSource;
+    private ContentsAdapter adapter;
 
     public static ContentsFragment newInstance() {
         return new ContentsFragment();
@@ -29,94 +32,95 @@ public class ContentsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_contents, container, false);
 
-        PyramidsDataSource pyramidsDataSource = new PyramidsDataSource();
+        pyramidsDataSource = new PyramidsDataSource();
+        adapter = new ContentsAdapter(rootView.getContext());
+        resetToCatalogView(adapter, pyramidsDataSource);
 
-        // Create the ListView Adapter
-        ContentsAdapter adapter = new ContentsAdapter(rootView.getContext());
-
-        // Add Sections
-        for (int i = 0; i < pyramidsDataSource.getNameOfPiramids().length; i++) {
-            ArrayList<String> sectionItems = new ArrayList<>();
-            for (int j = i * 6; j < i * 6 + 6 && j < pyramidsDataSource.getSetOfTitles().length; j++) {
-                sectionItems.add(pyramidsDataSource.getTitleForHead(j + 1));
-            }
-            ContentsItemAdapter itemAdapter = new ContentsItemAdapter(rootView.getContext(), sectionItems);
-            adapter.addSection(pyramidsDataSource.getNameOfPiramids()[i], itemAdapter);
-        }
-
-        // Get a reference to the ListView holder
         ListView contentsListView = rootView.findViewById(R.id.contentsListView);
-
-        // Set the adapter on the ListView holder
         contentsListView.setAdapter(adapter);
 
-        // Find the ImageView by its ID
+        Toolbar toolbar = rootView.findViewById(R.id.toolbar);
+        toolbar.setTitle(R.string.contents);
+
         ImageView filterImageView = rootView.findViewById(R.id.filterImageView);
-
-        // Set an OnClickListener on the ImageView
+        filterImageView.setImageResource(R.drawable.unlock_all_kutalog);
         filterImageView.setOnClickListener(v -> {
-            // Toggle the image
-            if (isFirstImage) {
-                filterImageView.setImageResource(R.drawable.lock_all_kutalog); // Change to the second image
+            FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+            ft.replace(R.id.rootLayout, FavoritesFragment.newInstance());
+            ft.addToBackStack(null);
+            ft.commit();
+        });
 
-                // Reset the ListView to show the full catalog
-                resetToCatalogView(contentsListView, adapter, pyramidsDataSource);
-            } else {
-                filterImageView.setImageResource(R.drawable.unlock_all_kutalog); // Change back to the first image
-
-                // Apply filter functionality
-                applyFilter(contentsListView, adapter, pyramidsDataSource);
+        SearchView searchView = rootView.findViewById(R.id.searchView); // Строка 57
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                filterContents(query);
+                return true;
             }
-            isFirstImage = !isFirstImage; // Toggle the state
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                filterContents(newText);
+                return true;
+            }
+        });
+
+        searchView.setOnCloseListener(() -> {
+            resetToCatalogView(adapter, pyramidsDataSource);
+            return false;
         });
 
         return rootView;
     }
 
-    private void resetToCatalogView(ListView contentsListView, ContentsAdapter adapter, PyramidsDataSource pyramidsDataSource) {
-        // Clear existing sections
+    private void resetToCatalogView(ContentsAdapter adapter, PyramidsDataSource pyramidsDataSource) {
         adapter.clearSections();
-
-        // Re-add all sections
         for (int i = 0; i < pyramidsDataSource.getNameOfPiramids().length; i++) {
             ArrayList<String> sectionItems = new ArrayList<>();
             for (int j = i * 6; j < i * 6 + 6 && j < pyramidsDataSource.getSetOfTitles().length; j++) {
-                sectionItems.add(pyramidsDataSource.getTitleForHead(j + 1));
+                sectionItems.add(pyramidsDataSource.getTitleForHead(j));
             }
             ContentsItemAdapter itemAdapter = new ContentsItemAdapter(getContext(), sectionItems);
             adapter.addSection(pyramidsDataSource.getNameOfPiramids()[i], itemAdapter);
         }
-
-        // Notify the ListView that the data has changed
         adapter.notifyDataSetChanged();
     }
 
-    private void applyFilter(ListView contentsListView, ContentsAdapter adapter, PyramidsDataSource pyramidsDataSource) {
-        // Clear existing sections
+    private void filterContents(String query) {
         adapter.clearSections();
+        String[][] setOfTitles = pyramidsDataSource.getSetOfTitles();
+        query = query.toLowerCase().trim();
 
-        // Apply filter logic
-        List<String> filteredItems = new ArrayList<>();
-        List<Boolean> filteredCheckBoxStates = new ArrayList<>();
+        if (query.isEmpty()) {
+            resetToCatalogView(adapter, pyramidsDataSource);
+            return;
+        }
 
-        for (int i = 0; i < pyramidsDataSource.getSetOfTitles().length; i++) {
-            // Ensure the adapter is not null
-            ContentsItemAdapter itemAdapter = (ContentsItemAdapter) adapter.sections.get(pyramidsDataSource.getNameOfPiramids()[0]);
-            if (itemAdapter != null) {
-                List<Boolean> checkBoxStates = itemAdapter.getCheckBoxStates();
-                if (i < checkBoxStates.size() && checkBoxStates.get(i)) {
-                    filteredItems.add(pyramidsDataSource.getTitleForHead(i + 1));
-                    filteredCheckBoxStates.add(true); // Set the checkbox state to "checked"
+        for (int i = 0; i < pyramidsDataSource.getNameOfPiramids().length; i++) {
+            ArrayList<String> sectionItems = new ArrayList<>();
+            for (int j = i * 6; j < i * 6 + 6 && j < setOfTitles.length; j++) {
+                String title = setOfTitles[j][0];
+                if (title.toLowerCase().contains(query)) {
+                    sectionItems.add(title);
                 }
+            }
+            if (!sectionItems.isEmpty()) {
+                ContentsItemAdapter itemAdapter = new ContentsItemAdapter(getContext(), sectionItems);
+                adapter.addSection(pyramidsDataSource.getNameOfPiramids()[i], itemAdapter);
             }
         }
 
-        // Create a new adapter with filtered items
-        ContentsItemAdapter filteredAdapter = new ContentsItemAdapter(getContext(), filteredItems, filteredCheckBoxStates);
-        contentsListView.setAdapter(filteredAdapter);
+        if (adapter.getSectionCount() == 0) {
+            ArrayList<String> emptyList = new ArrayList<>();
+            emptyList.add("Ничего не найдено");
+            ContentsItemAdapter emptyAdapter = new ContentsItemAdapter(getContext(), emptyList);
+            adapter.addSection("Результаты поиска", emptyAdapter);
+        }
+
+        adapter.notifyDataSetChanged();
     }
 }
